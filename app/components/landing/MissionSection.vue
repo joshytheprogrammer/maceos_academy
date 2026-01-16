@@ -26,12 +26,12 @@ const features = [
     <div class="container mx-auto px-4 md:px-8 lg:px-12 relative z-10">
       <div class="flex flex-col gap-16">
         <!-- Section Header -->
-        <div class="flex flex-col md:flex-row justify-between items-end gap-6 border-b border-surface-border pb-8">
+        <div class="flex flex-col md:flex-row justify-between md:items-end gap-4 md:gap-6 border-b border-surface-border pb-6 md:pb-8">
           <div class="max-w-2xl">
-            <h2 class="text-primary text-sm font-bold uppercase tracking-widest mb-3">Our Vision</h2>
-            <h3 class="text-3xl md:text-5xl font-bold text-white leading-tight">Our Mission Pillars</h3>
+            <h2 class="text-primary text-xs md:text-sm font-bold uppercase tracking-widest mb-2 md:mb-3">Our Vision</h2>
+            <h3 class="text-2xl md:text-5xl font-bold text-white leading-tight">Our Mission Pillars</h3>
           </div>
-          <p class="text-gray-400 text-lg max-w-lg leading-relaxed md:text-right">
+          <p class="text-gray-400 text-sm md:text-lg max-w-lg leading-relaxed md:text-right">
             Bridging business, AI, and multi-modal mobility to define the next era of transportation.
           </p>
         </div>
