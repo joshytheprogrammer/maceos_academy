@@ -63,10 +63,7 @@ const steps = [
             <!-- Payment providers for last step -->
             <div v-if="step.number === 3" class="mt-4 flex gap-4 opacity-50 group-hover:opacity-100 transition-all">
               <div class="flex items-center gap-1 text-xs font-bold text-white border border-white/20 px-2 py-1 rounded">
-                <span class="material-symbols-outlined text-base">lock</span> Stripe
-              </div>
-              <div class="flex items-center gap-1 text-xs font-bold text-white border border-white/20 px-2 py-1 rounded">
-                <span class="material-symbols-outlined text-base">credit_card</span> Flutterwave
+                <span class="material-symbols-outlined text-base">credit_card</span> Paystack
               </div>
             </div>
           </div>

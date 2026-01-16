@@ -1,9 +1,9 @@
 <template>
   <div class="relative flex min-h-screen w-full flex-col">
-    <TheNavbar />
+    <LayoutTheNavbar />
     <main class="flex-1">
       <slot />
     </main>
-    <TheFooter />
+    <LayoutTheFooter />
   </div>
 </template>
