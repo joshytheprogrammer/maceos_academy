@@ -24,9 +24,6 @@ export const useApplication = () => {
     currentOccupation: '',
     yearsOfExperience: '',
     whyJoin: '',
-    
-    // Step 3: Payment (handled separately)
-    // Step 4: Confirmation
   }))
 
   // Current step tracker
@@ -67,7 +64,7 @@ export const useApplication = () => {
   }
 
   /**
-   * Create application in database
+   * Create application in database with atomic fields
    */
   const createApplication = async (userId) => {
     loading.value = true
@@ -76,28 +73,25 @@ export const useApplication = () => {
     try {
       const applicationData = {
         userId,
-        personalInfo: JSON.stringify({
-          fullName: formData.value.fullName,
-          email: formData.value.email,
-          phone: formData.value.phone,
-          dateOfBirth: formData.value.dateOfBirth,
-          country: formData.value.country,
-        }),
-        education: JSON.stringify({
-          highestEducation: formData.value.highestEducation,
-          fieldOfStudy: formData.value.fieldOfStudy,
-          currentOccupation: formData.value.currentOccupation,
-          yearsOfExperience: formData.value.yearsOfExperience,
-          whyJoin: formData.value.whyJoin,
-        }),
-        payment: JSON.stringify({
-          status: 'pending',
-          amount: 0,
-          currency: 'NGN',
-          gateway: 'paystack',
-          transactionId: null,
-        }),
-        status: 'pending',
+        // Personal Info (atomic)
+        fullName: formData.value.fullName,
+        email: formData.value.email,
+        phone: formData.value.phone,
+        dateOfBirth: formData.value.dateOfBirth,
+        country: formData.value.country,
+        // Education (atomic)
+        highestEducation: formData.value.highestEducation,
+        fieldOfStudy: formData.value.fieldOfStudy,
+        currentOccupation: formData.value.currentOccupation,
+        yearsOfExperience: formData.value.yearsOfExperience,
+        whyJoin: formData.value.whyJoin,
+        // Payment fields (atomic)
+        paymentStatus: 'pending',
+        paymentAmount: 0,
+        paymentReference: '',
+        paymentVerified: false,
+        // Application status
+        status: 'draft',
         submittedAt: new Date().toISOString(),
       }
 
@@ -150,9 +144,9 @@ export const useApplication = () => {
   }
 
   /**
-   * Update application payment status
+   * Initialize payment - stores pending reference
    */
-  const updatePaymentStatus = async (applicationId, paymentData) => {
+  const initializePayment = async (applicationId, reference, amount) => {
     loading.value = true
     error.value = null
     
@@ -162,8 +156,9 @@ export const useApplication = () => {
         COLLECTION_ID,
         applicationId,
         {
-          payment: JSON.stringify(paymentData),
-          status: paymentData.status === 'completed' ? 'submitted' : 'pending',
+          paymentReference: reference,
+          paymentAmount: amount,
+          paymentStatus: 'pending',
         }
       )
       
@@ -178,6 +173,57 @@ export const useApplication = () => {
       loading.value = false
     }
   }
+
+  /**
+   * Complete payment after server-side verification
+   */
+  const completePayment = async (applicationId) => {
+    loading.value = true
+    error.value = null
+    
+    try {
+      const doc = await databases.updateDocument(
+        DB_ID,
+        COLLECTION_ID,
+        applicationId,
+        {
+          paymentStatus: 'completed',
+          paymentVerified: true,
+          status: 'submitted',
+        }
+      )
+      
+      application.value = doc
+      return { success: true, data: doc }
+    }
+    catch (e) {
+      error.value = e.message
+      return { success: false, error: e.message }
+    }
+    finally {
+      loading.value = false
+    }
+  }
+
+  /**
+   * Check if application is complete (payment verified)
+   */
+  const isApplicationComplete = computed(() => {
+    return application.value?.paymentVerified === true && 
+           application.value?.status === 'submitted'
+  })
+
+  /**
+   * Get application status for display
+   */
+  const applicationStatus = computed(() => {
+    if (!application.value) return 'none'
+    if (application.value.status === 'approved') return 'approved'
+    if (application.value.status === 'rejected') return 'rejected'
+    if (application.value.paymentVerified && application.value.status === 'submitted') return 'pending_review'
+    if (application.value.paymentStatus === 'pending') return 'payment_pending'
+    return 'draft'
+  })
 
   /**
    * Reset application form
@@ -211,7 +257,10 @@ export const useApplication = () => {
     goToStep,
     createApplication,
     fetchApplication,
-    updatePaymentStatus,
+    initializePayment,
+    completePayment,
+    isApplicationComplete,
+    applicationStatus,
     resetForm,
   }
 }

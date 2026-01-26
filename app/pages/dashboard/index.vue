@@ -13,7 +13,7 @@
           <!-- Notifications -->
           <button class="p-2 text-gray-400 hover:text-white transition-colors relative">
             <span class="material-symbols-outlined">notifications</span>
-            <span class="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full"></span>
+            <span v-if="applicationStatus === 'pending_review'" class="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full"></span>
           </button>
           
           <!-- User Menu -->
@@ -63,29 +63,129 @@
 
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-6 py-8">
-      <!-- Welcome Section -->
-      <div class="mb-8">
-        <h2 class="text-3xl font-bold text-white mb-2">Welcome back, {{ user?.name?.split(' ')[0] }}! 👋</h2>
-        <p class="text-text-secondary">Here's what's happening with your learning journey.</p>
-      </div>
+      <!-- Application Pending Review State -->
+      <template v-if="applicationStatus === 'pending_review'">
+        <div class="max-w-2xl mx-auto text-center py-12">
+          <!-- Animated Icon -->
+          <div class="mb-8 relative">
+            <div class="w-32 h-32 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
+              <div class="w-24 h-24 bg-primary/20 rounded-full flex items-center justify-center animate-pulse">
+                <span class="material-symbols-outlined text-primary text-5xl">hourglass_top</span>
+              </div>
+            </div>
+            <div class="absolute -bottom-2 left-1/2 -translate-x-1/2 px-4 py-1 bg-primary/20 border border-primary/40 rounded-full">
+              <span class="text-primary text-sm font-medium">Under Review</span>
+            </div>
+          </div>
 
-      <!-- Status Banner (if application pending) -->
-      <div v-if="applicationStatus === 'pending'" class="mb-8 p-6 bg-primary/10 border border-primary/30 rounded-2xl">
-        <div class="flex items-start gap-4">
-          <div class="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center shrink-0">
-            <span class="material-symbols-outlined text-primary text-2xl">hourglass_top</span>
+          <!-- Welcome Message -->
+          <h2 class="text-3xl font-bold text-white mb-4">
+            Welcome, {{ user?.name?.split(' ')[0] }}! 🎉
+          </h2>
+          <p class="text-xl text-text-secondary mb-8">
+            Your application has been successfully submitted
+          </p>
+
+          <!-- Status Card -->
+          <div class="bg-surface-dark border border-surface-border rounded-2xl p-8 mb-8 text-left">
+            <div class="flex items-start gap-4 mb-6">
+              <div class="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined text-primary text-2xl">description</span>
+              </div>
+              <div>
+                <h3 class="text-lg font-semibold text-white mb-1">Application Status</h3>
+                <p class="text-text-secondary">
+                  Our admissions team is reviewing your application. This typically takes 
+                  <span class="text-primary font-medium">3-5 business days</span>.
+                </p>
+              </div>
+            </div>
+
+            <!-- Progress Steps -->
+            <div class="space-y-4">
+              <div class="flex items-center gap-4">
+                <div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center shrink-0">
+                  <span class="material-symbols-outlined text-background-dark">check</span>
+                </div>
+                <div class="flex-1">
+                  <p class="font-medium text-white">Application Submitted</p>
+                  <p class="text-sm text-text-secondary">{{ formatDate(application?.submittedAt) }}</p>
+                </div>
+              </div>
+              
+              <div class="ml-5 w-0.5 h-6 bg-primary"></div>
+              
+              <div class="flex items-center gap-4">
+                <div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center shrink-0">
+                  <span class="material-symbols-outlined text-background-dark">check</span>
+                </div>
+                <div class="flex-1">
+                  <p class="font-medium text-white">Payment Confirmed</p>
+                  <p class="text-sm text-text-secondary">₦{{ application?.paymentAmount?.toLocaleString() }} paid via Paystack</p>
+                </div>
+              </div>
+              
+              <div class="ml-5 w-0.5 h-6 bg-primary/30"></div>
+              
+              <div class="flex items-center gap-4">
+                <div class="w-10 h-10 bg-primary/20 border-2 border-primary rounded-full flex items-center justify-center shrink-0 animate-pulse">
+                  <span class="material-symbols-outlined text-primary">pending</span>
+                </div>
+                <div class="flex-1">
+                  <p class="font-medium text-primary">Under Review</p>
+                  <p class="text-sm text-text-secondary">Our team is evaluating your application</p>
+                </div>
+              </div>
+              
+              <div class="ml-5 w-0.5 h-6 bg-surface-border"></div>
+              
+              <div class="flex items-center gap-4 opacity-50">
+                <div class="w-10 h-10 bg-surface-border rounded-full flex items-center justify-center shrink-0">
+                  <span class="material-symbols-outlined text-gray-500">school</span>
+                </div>
+                <div class="flex-1">
+                  <p class="font-medium text-gray-400">Decision</p>
+                  <p class="text-sm text-gray-500">You'll be notified via email</p>
+                </div>
+              </div>
+            </div>
           </div>
-          <div>
-            <h3 class="text-lg font-semibold text-primary mb-1">Application Under Review</h3>
-            <p class="text-text-secondary">
-              Your application is being reviewed by our admissions team. You'll receive an email once a decision is made. 
-              This typically takes 3-5 business days.
-            </p>
+
+          <!-- What Happens Next -->
+          <div class="bg-surface-dark border border-surface-border rounded-2xl p-6 mb-8">
+            <h3 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+              <span class="material-symbols-outlined text-primary">info</span>
+              What happens next?
+            </h3>
+            <ul class="space-y-3 text-left">
+              <li class="flex items-start gap-3">
+                <span class="material-symbols-outlined text-primary mt-0.5">mail</span>
+                <span class="text-text-secondary">You'll receive an email notification once a decision is made</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <span class="material-symbols-outlined text-primary mt-0.5">calendar_today</span>
+                <span class="text-text-secondary">If accepted, you'll get access to course materials and your schedule</span>
+              </li>
+              <li class="flex items-start gap-3">
+                <span class="material-symbols-outlined text-primary mt-0.5">support_agent</span>
+                <span class="text-text-secondary">Questions? Contact our support team at support@maceos.academy</span>
+              </li>
+            </ul>
           </div>
+
+          <!-- Contact Support -->
+          <a 
+            href="mailto:support@maceos.academy"
+            class="inline-flex items-center gap-2 px-6 py-3 border border-primary/50 text-primary hover:bg-primary/10 font-medium rounded-xl transition-colors"
+          >
+            <span class="material-symbols-outlined">email</span>
+            Contact Support
+          </a>
         </div>
-      </div>
+      </template>
 
-      <!-- Stats Cards -->
+      <!-- Approved/Active Student Dashboard -->
+      <template v-else-if="applicationStatus === 'approved'">
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div class="bg-surface-dark border border-surface-border rounded-2xl p-6">
           <div class="flex items-center justify-between mb-4">
@@ -272,27 +372,27 @@
           </div>
         </div>
       </div>
+      </template>
     </main>
   </div>
 </template>
 
 <script setup>
 definePageMeta({
-  middleware: ['auth']
+  middleware: ['auth', 'application-complete']
 })
 
 const { user, logout } = useAuth()
-const { application, fetchApplication } = useApplication()
+const { application, applicationStatus, fetchApplication } = useApplication()
 
 const showUserMenu = ref(false)
 const userMenuRef = ref(null)
 
-// Mock data - replace with real data from Appwrite
+// Mock data - replace with real data from Appwrite later
 const currentWeek = ref(3)
 const progressPercent = ref(30)
 const downloadedMaterials = ref(12)
 const completedExams = ref(1)
-const applicationStatus = ref('approved') // 'pending', 'approved', 'rejected'
 
 const currentMaterials = ref([
   { id: 1, title: 'Introduction to Marine Operations', type: 'pdf', duration: '15 pages' },
@@ -318,6 +418,17 @@ const userInitials = computed(() => {
 })
 
 // Methods
+const formatDate = (dateString) => {
+  if (!dateString) return ''
+  return new Date(dateString).toLocaleDateString('en-NG', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
+
 const getMaterialIcon = (type) => {
   const icons = {
     pdf: 'description',

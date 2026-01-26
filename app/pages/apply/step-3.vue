@@ -105,8 +105,12 @@
                 value="paystack" 
                 class="sr-only"
               />
-              <div class="w-12 h-12 bg-[#00C3F7] rounded-lg flex items-center justify-center">
-                <span class="text-white font-bold text-xl">P</span>
+              <div class="w-12 h-12 rounded-lg flex items-center justify-center overflow-hidden">
+                <img 
+                  src="https://paystack.com/favicon.png" 
+                  alt="Paystack" 
+                  class="w-full h-full object-contain"
+                />
               </div>
               <div>
                 <p class="font-medium">Pay with Paystack</p>
@@ -183,7 +187,7 @@ definePageMeta({
 
 const config = useRuntimeConfig()
 const { user } = useAuth()
-const { application, formData, currentStep, goToStep, updatePaymentStatus } = useApplication()
+const { application, formData, currentStep, goToStep, initializePayment, completePayment } = useApplication()
 
 const isLoading = ref(false)
 const errorMessage = ref('')
@@ -194,7 +198,21 @@ const agreedToTerms = ref(false)
 goToStep(3)
 
 // Paystack configuration
-const PAYSTACK_PUBLIC_KEY = config.public.paystackPublicKey || 'pk_test_xxxxx'
+const PAYSTACK_PUBLIC_KEY = config.public.paystackPublicKey
+
+const verifyPayment = async (reference) => {
+  try {
+    const result = await $fetch('/api/payment/verify', {
+      method: 'POST',
+      body: { reference },
+    })
+    return result
+  }
+  catch (e) {
+    console.error('Verification error:', e)
+    return { success: false, verified: false }
+  }
+}
 
 const handlePayment = async () => {
   if (!agreedToTerms.value) {
@@ -205,14 +223,19 @@ const handlePayment = async () => {
   isLoading.value = true
   errorMessage.value = ''
 
+  const paymentReference = `MACEOS_${Date.now()}_${Math.floor(Math.random() * 1000000)}`
+
   try {
+    // Store pending payment reference in database
+    await initializePayment(application.value?.$id, paymentReference, 50000)
+
     // Initialize Paystack
     const handler = window.PaystackPop?.setup({
       key: PAYSTACK_PUBLIC_KEY,
       email: formData.value.email || user.value?.email,
       amount: 5000000, // Amount in kobo (₦50,000)
       currency: 'NGN',
-      ref: `MACEOS_${Date.now()}_${Math.floor(Math.random() * 1000000)}`,
+      ref: paymentReference,
       metadata: {
         applicationId: application.value?.$id,
         userId: user.value?.$id,
@@ -224,23 +247,29 @@ const handlePayment = async () => {
           },
         ],
       },
-      callback: async (response) => {
-        // Payment successful
-        console.log('Payment successful:', response)
+      callback: function (response) {
+        // Payment callback received - verify server-side
+        console.log('Payment callback:', response)
         
-        // Update application payment status
-        await updatePaymentStatus(application.value?.$id, {
-          status: 'completed',
-          amount: 50000,
-          currency: 'NGN',
-          gateway: 'paystack',
-          transactionId: response.reference,
+        // Handle async verification inside regular function
+        verifyPayment(response.reference).then((verification) => {
+          if (verification.success && verification.verified) {
+            // Payment verified - update application
+            completePayment(application.value?.$id).then(() => {
+              // Navigate to confirmation
+              navigateTo('/apply/step-4')
+            })
+          }
+          else {
+            errorMessage.value = 'Payment verification failed. Please contact support if you were charged.'
+            isLoading.value = false
+          }
+        }).catch(() => {
+          errorMessage.value = 'Payment verification failed. Please contact support if you were charged.'
+          isLoading.value = false
         })
-
-        // Navigate to confirmation
-        navigateTo('/apply/step-4')
       },
-      onClose: () => {
+      onClose: function () {
         isLoading.value = false
         errorMessage.value = 'Payment was cancelled. Please try again.'
       },

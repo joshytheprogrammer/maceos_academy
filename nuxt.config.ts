@@ -7,6 +7,7 @@ export default defineNuxtConfig({
   css: ['~/assets/css/main.css'],
 
   runtimeConfig: {
+    paystackSecretKey: process.env.PAYSTACK_SECRET_KEY || '',
     public: {
       paystackPublicKey: process.env.PAYSTACK_PUBLIC_KEY || '',
     },
