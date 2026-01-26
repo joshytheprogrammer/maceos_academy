@@ -525,10 +525,10 @@ const handleChangePassword = async () => {
   isChangingPassword.value = true
 
   try {
-    await account.updatePassword(
-      passwordForm.value.newPassword,
-      passwordForm.value.currentPassword
-    )
+    await account.updatePassword({
+      password: passwordForm.value.newPassword,
+      oldPassword: passwordForm.value.currentPassword
+    })
     passwordSuccess.value = 'Password updated successfully!'
     passwordForm.value = { currentPassword: '', newPassword: '', confirmPassword: '' }
     

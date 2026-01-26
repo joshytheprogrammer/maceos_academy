@@ -51,8 +51,13 @@ export const useAuth = () => {
       // Generate random password - user will change it after approval
       const generatedPassword = generatePassword(16)
       
-      // Create account
-      await account.create(ID.unique(), email, generatedPassword, name)
+      // Create account with object syntax
+      await account.create({
+        userId: ID.unique(),
+        email,
+        password: generatedPassword,
+        name
+      })
       // Auto login after registration
       await login(email, generatedPassword)
       return { success: true, generatedPassword }
@@ -73,7 +78,7 @@ export const useAuth = () => {
     loading.value = true
     error.value = null
     try {
-      await account.createEmailPasswordSession(email, password)
+      await account.createEmailPasswordSession({ email, password })
       await fetchUser()
       return { success: true }
     }
@@ -92,7 +97,7 @@ export const useAuth = () => {
   const logout = async () => {
     loading.value = true
     try {
-      await account.deleteSession('current')
+      await account.deleteSession({ sessionId: 'current' })
       user.value = null
       navigateTo('/')
     }

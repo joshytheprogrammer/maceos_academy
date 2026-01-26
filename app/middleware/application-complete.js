@@ -1,11 +1,18 @@
 // Application-complete middleware: User must have finished application (paid)
 export default defineNuxtRouteMiddleware(async (to, from) => {
+  // On server, we can't check auth - let app.vue handle showing loading screen
+  if (import.meta.server) {
+    return
+  }
+
   const { user, fetchUser } = useAuth()
   const { application, fetchApplication } = useApplication()
+  const authInitialized = useState('auth_initialized', () => false)
   
-  // Must be logged in first
-  if (user.value === null) {
+  // Wait for auth to be initialized
+  if (!authInitialized.value) {
     await fetchUser()
+    authInitialized.value = true
   }
   
   if (!user.value) {

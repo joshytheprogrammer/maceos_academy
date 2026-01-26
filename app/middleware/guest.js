@@ -1,9 +1,20 @@
 // Guest middleware: User must NOT be logged in
 export default defineNuxtRouteMiddleware(async (to, from) => {
-  const { user } = useAuth()
+  const { user, fetchUser } = useAuth()
   const { application, fetchApplication } = useApplication()
+  const authInitialized = useState('auth_initialized', () => false)
   
-  // Auth state is initialized by app.vue before any navigation
+  // On server, we can't check auth - let app.vue handle showing loading screen
+  if (import.meta.server) {
+    return
+  }
+  
+  // Wait for auth to be initialized (should already be done by app.vue)
+  if (!authInitialized.value) {
+    await fetchUser()
+    authInitialized.value = true
+  }
+  
   // If logged in, figure out where to send them
   if (user.value) {
     // Check their application status
