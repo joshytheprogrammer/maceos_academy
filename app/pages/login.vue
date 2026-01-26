@@ -1,5 +1,8 @@
 <template>
-  <div class="min-h-screen bg-background-dark text-white flex items-center justify-center px-6">
+  <!-- Loading screen while checking auth -->
+  <UiLoadingScreen v-if="!authReady" message="Verifying session..." />
+  
+  <div v-else class="min-h-screen bg-background-dark text-white flex items-center justify-center px-6">
     <div class="w-full max-w-md">
      
       <!-- Login Card -->
@@ -122,6 +125,8 @@ definePageMeta({
 })
 
 const { login, error: authError } = useAuth()
+const authInitialized = useState('auth_initialized', () => false)
+const authReady = computed(() => authInitialized.value)
 
 const isLoading = ref(false)
 const errorMessage = ref('')

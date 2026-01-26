@@ -6,6 +6,14 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   css: ['~/assets/css/main.css'],
 
+  // Route rules: SSR only for landing page, SPA for everything else
+  routeRules: {
+    '/': { ssr: true },              // Landing page - SSR for SEO
+    '/login': { ssr: false },        // Login - client only
+    '/apply/**': { ssr: false },     // Application flow - client only
+    '/dashboard/**': { ssr: false }, // Dashboard - client only
+  },
+
   runtimeConfig: {
     paystackSecretKey: process.env.PAYSTACK_SECRET_KEY || '',
     appwriteApiKey: process.env.APPWRITE_API_KEY || '',

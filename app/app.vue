@@ -1,10 +1,6 @@
 <template>
   <NuxtLayout>
-    <!-- Show loading screen until auth is initialized (both SSR and client) -->
-    <UiLoadingScreen v-if="!authInitialized" message="Verifying session..." />
-    
-    <!-- Only render page content after auth check completes -->
-    <NuxtPage v-else />
+    <NuxtPage />
   </NuxtLayout>
 </template>
 

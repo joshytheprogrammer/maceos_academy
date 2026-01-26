@@ -1,5 +1,8 @@
 <template>
-  <div class="min-h-screen bg-background-dark">
+  <!-- Loading screen while checking auth -->
+  <UiLoadingScreen v-if="!authReady" message="Loading dashboard..." />
+  
+  <div v-else class="min-h-screen bg-background-dark">
     <!-- Top Navigation -->
     <header class="bg-surface-dark border-b border-surface-border sticky top-0 z-50">
       <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
@@ -493,6 +496,8 @@ definePageMeta({
 
 const { user, logout } = useAuth()
 const { application, applicationStatus, fetchApplication } = useApplication()
+const authInitialized = useState('auth_initialized', () => false)
+const authReady = computed(() => authInitialized.value)
 
 const showUserMenu = ref(false)
 const userMenuRef = ref(null)
