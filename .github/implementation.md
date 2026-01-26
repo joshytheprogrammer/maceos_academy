@@ -4,7 +4,7 @@
 *A Nuxt.js 4 + Appwrite EdTech Platform*
 
 ## **🌐 Architecture Overview**
-
+The code you see here are suggestions. Write the code you believe is best.
 ```
 
 ┌─────────────────────────────────────────────────────────────┐
@@ -415,9 +415,9 @@ Permission.write(Role.label('admin'))   // Admins can upload
   │       └── schedule.vue
   │
   ├── composables/
-  │   ├── useAppwrite.ts (Appwrite Client initialization)
-  │   ├── useAuth.ts (Account state & Session management)
-  │   └── useCourse.ts (Database interactions)
+  │   ├── useAppwrite.js (Appwrite Client initialization)
+  │   ├── useAuth.js (Account state & Session management)
+  │   └── useCourse.js (Database interactions)
   │
   ├── server/
   │   ├── api/
@@ -448,7 +448,7 @@ Permission.write(Role.label('admin'))   // Admins can upload
 ## **📱 FRONTEND COMPOSABLES (Nuxt 4)**
 
 ```javascript
-// Example: useCourseMaterials.ts
+// Example: useCourseMaterials.js
 import { Client, Databases, Storage, Query } from 'appwrite';
 
 export const useCourseMaterials = () => {
