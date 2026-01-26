@@ -80,7 +80,7 @@ Application {
     status: 'pending' | 'completed' | 'failed'
     amount: number
     currency: string
-    gateway: 'stripe' | 'flutterwave'
+    gateway: 'paystack'
     transactionId?: string
   }
   submittedAt: string (ISO 8601)
@@ -168,7 +168,7 @@ Trigger: User visits landing page
 2. System → creates Appwrite Account (Auth)
 3. User → fills 4-step application form
 4. System → saves to Database: Application collection
-5. User → redirected to payment gateway (Stripe/Flutterwave)
+5. User → redirected to payment gateway (paystack)
 6. Payment Gateway → sends webhook to Appwrite Function
 7. Appwrite Function → updates Application.payment.status
 8. System → sends email confirmation
@@ -180,7 +180,7 @@ Trigger: User visits landing page
 
 ```
 Trigger: User submits payment
-1. Stripe/Flutterwave SDK → collects payment
+1. paystack → collects payment
 2. Webhook → /v1/functions/{functionId}/executions (Appwrite Function)
 3. Function → verifies payment signature
 4. Function → updates Application document
@@ -517,7 +517,7 @@ export const useCourseMaterials = () => {
 * [ ] Define Attributes & Indexes for all Collections
 * [ ] Create Storage Buckets
 * [ ] Deploy Appwrite Functions
-* [ ] Setup Stripe/Flutterwave Webhooks pointing to Appwrite Function URL
+* [ ] Setup paystack Webhooks pointing to Appwrite Function URL
 
 ### **Phase 2: Nuxt 4 Setup**
 

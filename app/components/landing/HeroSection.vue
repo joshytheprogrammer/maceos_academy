@@ -35,13 +35,13 @@ const heroImage = 'https://lh3.googleusercontent.com/aida-public/AB6AXuDHy_N6wqM
 
         <!-- CTAs -->
         <div class="flex flex-wrap justify-center gap-4 pt-4">
-          <a 
-            href="#admissions"
+          <NuxtLink 
+            to="/apply"
             class="flex items-center justify-center gap-2 h-12 px-8 bg-primary hover:bg-primary-dark text-background-dark text-base font-bold rounded-lg transition-all shadow-[0_0_20px_rgba(18,226,105,0.2)]"
           >
             <span>Apply for Admission</span>
             <span class="material-symbols-outlined text-lg">arrow_forward</span>
-          </a>
+          </NuxtLink>
           <button class="flex items-center justify-center h-12 px-8 bg-transparent border border-white/20 hover:border-primary/50 hover:bg-white/5 text-white text-base font-bold rounded-lg transition-all backdrop-blur-sm">
             <span>Download Prospectus</span>
           </button>
