@@ -16,7 +16,30 @@ The code you see here are suggestions. Write the code you believe is best.
 └─────────────────────────────────────────────────────────────┘
 
 ## **🔑 CORE ENTITIES (Data Models)**
-```javascript
+
+> ⚠️ **IMPLEMENTATION NOTE: User Labels & Status**
+> 
+> **Appwrite Auth** handles: `$id`, `email`, `name`, `labels[]`
+> - Labels are used for RBAC: `pending`, `student`, `admin`
+> - User starts with NO labels (implicitly a pending applicant)
+> - After admin approval → Server adds `student` label via API key
+> 
+> **Profiles Collection** (database) handles extended user data:
+> - `status`: 'active' | 'suspended' | 'graduated' 
+> - `enrollmentDate`, `avatarId`, etc.
+> 
+> **Label Assignment Flow:**
+> 1. User registers → NO label (pending applicant)
+> 2. User completes application + pays → Still no label
+> 3. Admin approves → Server adds `student` label + creates Profile doc
+> 4. Admin can later change to `suspended` or `graduated` in Profiles table
+>
+> **TODO: Create `profiles` table with fields:**
+> - userId (relation to Appwrite Auth)
+> - status: enum ['active', 'suspended', 'graduated']
+> - enrollmentDate: datetime
+> - avatarId: string (optional)
+> - cohort: string (e.g., "2026-Q1")
 
 ### **1. User Entity**
 *Mapped to Appwrite Auth (Users) & Database Collection (Profiles)*
@@ -165,7 +188,9 @@ SupportTicket {
 ```
 Trigger: User visits landing page
 1. User → clicks "Apply Now"
-2. System → creates Appwrite Account (Auth)
+2. System → creates Appwrite Account (Auth) with AUTO-GENERATED PASSWORD
+   - Password is randomly generated (16 chars, alphanumeric + special)
+   - User does NOT see or set password during registration
 3. User → fills 4-step application form
 4. System → saves to Database: Application collection
 5. User → redirected to payment gateway (paystack)
@@ -175,6 +200,22 @@ Trigger: User visits landing page
 9. Admin → notified in dashboard
 
 ```
+
+> ⚠️ **TODO: IMPLEMENT PASSWORD RESET FLOW**
+> After admin approves a student application:
+> 1. System should trigger a password reset email to the user
+> 2. User clicks link and sets their own password
+> 3. User can then login with their new password
+> 
+> **Implementation Options:**
+> - Use Appwrite's `account.createRecovery()` to send reset email
+> - Create admin action button "Approve & Send Password Reset"
+> - Or use Appwrite Function triggered on application status change
+>
+> **Files to modify:**
+> - `app/pages/admin/applications/[id].vue` - Add approve action
+> - `server/api/admin/approve-application.post.js` - Handle approval + trigger reset
+> - `app/pages/reset-password.vue` - Password reset page
 
 #### **P2: Payment Processing**
 

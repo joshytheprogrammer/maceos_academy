@@ -193,13 +193,11 @@ const handleSubmit = async () => {
   // Save step data
   saveStepData(form.value)
 
-  // Create Appwrite account with email and a generated password
-  const tempPassword = generateTempPassword()
-  const result = await register(form.value.email, tempPassword, form.value.fullName)
+  // Create Appwrite account - password is auto-generated
+  // User will need to reset password after admin approval
+  const result = await register(form.value.email, form.value.fullName)
 
   if (result.success) {
-    // Store temp password for later (user should change it)
-    sessionStorage.setItem('temp_pwd', tempPassword)
     // Navigate to step 2
     navigateTo('/apply/step-2')
   }
@@ -208,15 +206,5 @@ const handleSubmit = async () => {
   }
 
   isLoading.value = false
-}
-
-// Generate a temporary password
-const generateTempPassword = () => {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%'
-  let password = ''
-  for (let i = 0; i < 16; i++) {
-    password += chars.charAt(Math.floor(Math.random() * chars.length))
-  }
-  return password
 }
 </script>

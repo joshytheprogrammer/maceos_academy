@@ -204,7 +204,12 @@ const verifyPayment = async (reference) => {
   try {
     const result = await $fetch('/api/payment/verify', {
       method: 'POST',
-      body: { reference },
+      body: { 
+        reference,
+        userId: user.value?.$id,
+        applicationId: application.value?.$id,
+        customerEmail: formData.value.email || user.value?.email,
+      },
     })
     return result
   }

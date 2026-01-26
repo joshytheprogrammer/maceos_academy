@@ -8,8 +8,11 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     paystackSecretKey: process.env.PAYSTACK_SECRET_KEY || '',
+    appwriteApiKey: process.env.APPWRITE_API_KEY || '',
     public: {
       paystackPublicKey: process.env.PAYSTACK_PUBLIC_KEY || '',
+      appwriteEndpoint: process.env.NUXT_PUBLIC_APPWRITE_ENDPOINT || 'https://nyc.cloud.appwrite.io/v1',
+      appwriteProject: process.env.NUXT_PUBLIC_APPWRITE_PROJECT_ID || '',
     },
   },
   

@@ -27,17 +27,35 @@ export const useAuth = () => {
   }
 
   /**
-   * Register a new user
+   * Generate a secure random password
    */
-  const register = async (email, password, name) => {
+  const generatePassword = (length = 12) => {
+    const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*'
+    let password = ''
+    const array = new Uint32Array(length)
+    crypto.getRandomValues(array)
+    for (let i = 0; i < length; i++) {
+      password += charset[array[i] % charset.length]
+    }
+    return password
+  }
+
+  /**
+   * Register a new user with auto-generated password
+   * User will need to change password after approval
+   */
+  const register = async (email, name) => {
     loading.value = true
     error.value = null
     try {
+      // Generate random password - user will change it after approval
+      const generatedPassword = generatePassword(16)
+      
       // Create account
-      await account.create(ID.unique(), email, password, name)
+      await account.create(ID.unique(), email, generatedPassword, name)
       // Auto login after registration
-      await login(email, password)
-      return { success: true }
+      await login(email, generatedPassword)
+      return { success: true, generatedPassword }
     }
     catch (e) {
       error.value = e.message

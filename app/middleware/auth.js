@@ -1,12 +1,9 @@
-export default defineNuxtRouteMiddleware(async (to, from) => {
-  const { user, fetchUser } = useAuth()
+// Auth middleware: User must be logged in
+export default defineNuxtRouteMiddleware((to, from) => {
+  const { user } = useAuth()
   
-  // Fetch user if not already loaded
-  if (user.value === null) {
-    await fetchUser()
-  }
-  
-  // If user is not logged in, redirect to login
+  // Auth state is initialized by app.vue before any navigation
+  // Not logged in → go to login
   if (!user.value) {
     return navigateTo('/login')
   }
