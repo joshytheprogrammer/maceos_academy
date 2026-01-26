@@ -9,6 +9,13 @@ export default defineNuxtConfig({
   runtimeConfig: {
     paystackSecretKey: process.env.PAYSTACK_SECRET_KEY || '',
     appwriteApiKey: process.env.APPWRITE_API_KEY || '',
+    // SMTP Configuration
+    smtpHost: process.env.SMTP_HOST || '',
+    smtpPort: process.env.SMTP_PORT || '587',
+    smtpUser: process.env.SMTP_USER || '',
+    smtpPass: process.env.SMTP_PASS || '',
+    smtpFromName: process.env.SMTP_FROM_NAME || 'MACEOS Academy',
+    smtpFromEmail: process.env.SMTP_FROM_EMAIL || '',
     public: {
       paystackPublicKey: process.env.PAYSTACK_PUBLIC_KEY || '',
       appwriteEndpoint: process.env.NUXT_PUBLIC_APPWRITE_ENDPOINT || 'https://nyc.cloud.appwrite.io/v1',

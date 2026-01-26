@@ -162,7 +162,7 @@ definePageMeta({
 })
 
 const { register, error: authError, loading: authLoading } = useAuth()
-const { formData, saveStepData, currentStep, goToStep } = useApplication()
+const { formData, saveStepData, currentStep, goToStep, setTempPassword } = useApplication()
 
 const isLoading = ref(false)
 const errorMessage = ref('')
@@ -198,6 +198,10 @@ const handleSubmit = async () => {
   const result = await register(form.value.email, form.value.fullName)
 
   if (result.success) {
+    // Store the generated password for email later
+    if (result.generatedPassword) {
+      setTempPassword(result.generatedPassword)
+    }
     // Navigate to step 2
     navigateTo('/apply/step-2')
   }

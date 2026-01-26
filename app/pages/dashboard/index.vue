@@ -86,6 +86,29 @@
             Your application has been successfully submitted
           </p>
 
+          <!-- Password Reminder Alert -->
+          <div class="bg-orange-500/10 border border-orange-500/30 rounded-2xl p-6 mb-8 text-left">
+            <div class="flex items-start gap-4">
+              <div class="w-12 h-12 bg-orange-500/20 rounded-full flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined text-orange-400 text-2xl">key</span>
+              </div>
+              <div>
+                <h3 class="text-lg font-semibold text-orange-400 mb-1">Important: Change Your Password</h3>
+                <p class="text-text-secondary mb-3">
+                  Your login credentials were sent to <span class="text-white font-medium">{{ user?.email }}</span>. 
+                  For security, please change your password after logging in.
+                </p>
+                <button 
+                  @click="showChangePassword = true"
+                  class="inline-flex items-center gap-2 px-4 py-2 bg-orange-500/20 hover:bg-orange-500/30 text-orange-400 font-medium rounded-lg transition-colors"
+                >
+                  <span class="material-symbols-outlined text-lg">lock_reset</span>
+                  Change Password
+                </button>
+              </div>
+            </div>
+          </div>
+
           <!-- Status Card -->
           <div class="bg-surface-dark border border-surface-border rounded-2xl p-8 mb-8 text-left">
             <div class="flex items-start gap-4 mb-6">
@@ -374,10 +397,95 @@
       </div>
       </template>
     </main>
+
+    <!-- Change Password Modal -->
+    <Teleport to="body">
+      <Transition name="modal">
+        <div 
+          v-if="showChangePassword" 
+          class="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+        >
+          <!-- Backdrop -->
+          <div 
+            class="absolute inset-0 bg-black/70 backdrop-blur-sm"
+            @click="showChangePassword = false"
+          ></div>
+          
+          <!-- Modal -->
+          <div class="relative w-full max-w-md bg-surface-dark border border-surface-border rounded-2xl shadow-2xl">
+            <!-- Header -->
+            <div class="flex items-center justify-between p-6 border-b border-surface-border">
+              <h3 class="text-xl font-bold text-white">Change Password</h3>
+              <button 
+                @click="showChangePassword = false"
+                class="p-2 text-gray-400 hover:text-white transition-colors"
+              >
+                <span class="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            
+            <!-- Content -->
+            <form @submit.prevent="handleChangePassword" class="p-6 space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">Current Password</label>
+                <input
+                  v-model="passwordForm.currentPassword"
+                  type="password"
+                  required
+                  class="w-full px-4 py-3 bg-background-dark border border-surface-border rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                  placeholder="Enter current password"
+                />
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">New Password</label>
+                <input
+                  v-model="passwordForm.newPassword"
+                  type="password"
+                  required
+                  minlength="8"
+                  class="w-full px-4 py-3 bg-background-dark border border-surface-border rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                  placeholder="Enter new password"
+                />
+              </div>
+              
+              <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">Confirm New Password</label>
+                <input
+                  v-model="passwordForm.confirmPassword"
+                  type="password"
+                  required
+                  class="w-full px-4 py-3 bg-background-dark border border-surface-border rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+                  placeholder="Confirm new password"
+                />
+              </div>
+
+              <div v-if="passwordError" class="p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">
+                {{ passwordError }}
+              </div>
+
+              <div v-if="passwordSuccess" class="p-3 bg-green-500/10 border border-green-500/30 rounded-lg text-green-400 text-sm">
+                {{ passwordSuccess }}
+              </div>
+              
+              <button
+                type="submit"
+                :disabled="isChangingPassword"
+                class="w-full py-3 bg-primary hover:bg-primary-dark text-background-dark font-bold rounded-xl transition-colors disabled:opacity-50"
+              >
+                {{ isChangingPassword ? 'Updating...' : 'Update Password' }}
+              </button>
+            </form>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
 <script setup>
+import { account } from '~/utils/appwrite'
+
 definePageMeta({
   layout: 'dashboard',
   middleware: ['auth', 'application-complete']
@@ -388,6 +496,55 @@ const { application, applicationStatus, fetchApplication } = useApplication()
 
 const showUserMenu = ref(false)
 const userMenuRef = ref(null)
+const showChangePassword = ref(false)
+
+// Password change form
+const passwordForm = ref({
+  currentPassword: '',
+  newPassword: '',
+  confirmPassword: '',
+})
+const isChangingPassword = ref(false)
+const passwordError = ref('')
+const passwordSuccess = ref('')
+
+const handleChangePassword = async () => {
+  passwordError.value = ''
+  passwordSuccess.value = ''
+
+  if (passwordForm.value.newPassword !== passwordForm.value.confirmPassword) {
+    passwordError.value = 'New passwords do not match'
+    return
+  }
+
+  if (passwordForm.value.newPassword.length < 8) {
+    passwordError.value = 'Password must be at least 8 characters'
+    return
+  }
+
+  isChangingPassword.value = true
+
+  try {
+    await account.updatePassword(
+      passwordForm.value.newPassword,
+      passwordForm.value.currentPassword
+    )
+    passwordSuccess.value = 'Password updated successfully!'
+    passwordForm.value = { currentPassword: '', newPassword: '', confirmPassword: '' }
+    
+    // Close modal after success
+    setTimeout(() => {
+      showChangePassword.value = false
+      passwordSuccess.value = ''
+    }, 2000)
+  }
+  catch (e) {
+    passwordError.value = e.message || 'Failed to update password'
+  }
+  finally {
+    isChangingPassword.value = false
+  }
+}
 
 // Mock data - replace with real data from Appwrite later
 const currentWeek = ref(3)
@@ -494,5 +651,25 @@ onUnmounted(() => {
 .fade-leave-to {
   opacity: 0;
   transform: translateY(-10px);
+}
+
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+
+.modal-enter-active > div:last-child,
+.modal-leave-active > div:last-child {
+  transition: transform 0.2s ease;
+}
+
+.modal-enter-from > div:last-child,
+.modal-leave-to > div:last-child {
+  transform: scale(0.95);
 }
 </style>

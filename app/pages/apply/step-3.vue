@@ -187,7 +187,7 @@ definePageMeta({
 
 const config = useRuntimeConfig()
 const { user } = useAuth()
-const { application, formData, currentStep, goToStep, initializePayment, completePayment } = useApplication()
+const { application, formData, currentStep, goToStep, initializePayment, completePayment, tempPassword } = useApplication()
 
 const isLoading = ref(false)
 const errorMessage = ref('')
@@ -209,6 +209,8 @@ const verifyPayment = async (reference) => {
         userId: user.value?.$id,
         applicationId: application.value?.$id,
         customerEmail: formData.value.email || user.value?.email,
+        userName: user.value?.name || formData.value.fullName,
+        tempPassword: tempPassword.value,
       },
     })
     return result

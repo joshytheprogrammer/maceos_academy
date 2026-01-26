@@ -2,10 +2,11 @@
 // Verifies payment with Paystack API and stores in payments table
 
 import { Client, TablesDB, ID } from 'node-appwrite'
+import { sendEmail, emailTemplates } from '../../utils/email'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
-  const { reference, userId, applicationId, customerEmail } = body
+  const { reference, userId, applicationId, customerEmail, userName, tempPassword } = body
 
   if (!reference) {
     throw createError({
@@ -92,6 +93,29 @@ export default defineEventHandler(async (event) => {
               submittedAt: new Date().toISOString(),
             }
           })
+        }
+
+        // Send welcome email with credentials
+        if (tempPassword && paymentData.customerEmail) {
+          try {
+            const template = emailTemplates.applicationSubmitted({
+              name: userName || 'Applicant',
+              email: paymentData.customerEmail,
+              password: tempPassword,
+            })
+            
+            await sendEmail(config, {
+              to: paymentData.customerEmail,
+              subject: template.subject,
+              html: template.html,
+              text: template.text,
+            })
+            console.log('Welcome email sent to:', paymentData.customerEmail)
+          }
+          catch (emailError) {
+            // Log but don't fail - payment is still successful
+            console.error('Failed to send welcome email:', emailError)
+          }
         }
       }
       catch (dbError) {

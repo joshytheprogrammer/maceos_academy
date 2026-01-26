@@ -63,6 +63,13 @@ export const useApplication = () => {
     }
   }
 
+  // Store temp password for email
+  const tempPassword = useState('temp_password', () => '')
+
+  const setTempPassword = (password) => {
+    tempPassword.value = password
+  }
+
   /**
    * Create application in database with atomic fields
    */
@@ -90,6 +97,8 @@ export const useApplication = () => {
         paymentAmount: 0,
         paymentReference: '',
         paymentVerified: false,
+        // Temp password for email (encrypted in DB)
+        tempPassword: tempPassword.value || '',
         // Application status
         status: 'draft',
         submittedAt: new Date().toISOString(),
@@ -251,6 +260,8 @@ export const useApplication = () => {
     currentStep,
     loading,
     error,
+    tempPassword,
+    setTempPassword,
     saveStepData,
     nextStep,
     prevStep,
