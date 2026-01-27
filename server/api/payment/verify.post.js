@@ -1,7 +1,7 @@
 // Server-side Paystack payment verification
 // Verifies payment with Paystack API and stores in payments table
 
-import { Client, TablesDB, ID } from 'node-appwrite'
+import { Client, TablesDB, ID, Query } from 'node-appwrite'
 import { sendEmail, emailTemplates } from '../../utils/email'
 
 export default defineEventHandler(async (event) => {
@@ -23,6 +23,41 @@ export default defineEventHandler(async (event) => {
       statusCode: 500,
       statusMessage: 'Paystack secret key not configured',
     })
+  }
+
+  // Initialize Appwrite client first for idempotency check
+  const client = new Client()
+    .setEndpoint(config.public.appwriteEndpoint)
+    .setProject(config.public.appwriteProject)
+    .setKey(config.appwriteApiKey)
+
+  const tablesDB = new TablesDB(client)
+
+  // Check if payment already exists (idempotency)
+  try {
+    const existingPayments = await tablesDB.listRows({
+      databaseId: 'academia_db',
+      tableId: 'payments',
+      queries: [Query.equal('reference', reference)]
+    })
+    
+    if (existingPayments.total > 0) {
+      // Payment already processed - return success without duplicating
+      console.log('Payment already processed:', reference)
+      return {
+        success: true,
+        verified: true,
+        alreadyProcessed: true,
+        data: {
+          reference: reference,
+          amount: existingPayments.documents[0].amount,
+        },
+      }
+    }
+  }
+  catch (checkError) {
+    // Log but continue - better to risk duplicate than fail verification
+    console.error('Could not check for existing payment:', checkError)
   }
 
   try {
@@ -48,13 +83,6 @@ export default defineEventHandler(async (event) => {
 
       // Store payment in database using server SDK
       try {
-        const client = new Client()
-          .setEndpoint(config.public.appwriteEndpoint)
-          .setProject(config.public.appwriteProject)
-          .setKey(config.appwriteApiKey)
-
-        const tablesDB = new TablesDB(client)
-
         // Create payment record
         await tablesDB.createRow({
           databaseId: 'academia_db',
@@ -89,7 +117,7 @@ export default defineEventHandler(async (event) => {
               paymentAmount: Math.round(paymentData.amount),
               paymentReference: paymentData.reference,
               paymentVerified: true,
-              status: 'submitted',
+              status: 'pending', // Keep as pending - awaiting admin review
               submittedAt: new Date().toISOString(),
             }
           })

@@ -184,22 +184,19 @@ export const useApplication = () => {
   }
 
   /**
-   * Complete payment after server-side verification
+   * Refresh application after server-side payment verification
+   * Note: Server already updates the application status, this just fetches the updated state
    */
   const completePayment = async (applicationId) => {
     loading.value = true
     error.value = null
     
     try {
-      const doc = await databases.updateDocument(
+      // Just fetch the updated application - server already updated it in verify.post.js
+      const doc = await databases.getDocument(
         DB_ID,
         COLLECTION_ID,
-        applicationId,
-        {
-          paymentStatus: 'completed',
-          paymentVerified: true,
-          status: 'submitted',
-        }
+        applicationId
       )
       
       application.value = doc
@@ -218,20 +215,23 @@ export const useApplication = () => {
    * Check if application is complete (payment verified)
    */
   const isApplicationComplete = computed(() => {
-    return application.value?.paymentVerified === true && 
-           application.value?.status === 'submitted'
+    return application.value?.paymentVerified === true
   })
 
   /**
    * Get application status for display
+   * Status flow: draft -> pending (with paymentVerified) -> approved/rejected
    */
   const applicationStatus = computed(() => {
     if (!application.value) return 'none'
     if (application.value.status === 'approved') return 'approved'
     if (application.value.status === 'rejected') return 'rejected'
-    if (application.value.status === 'pending') return 'pending'
-    if (application.value.paymentVerified && application.value.status === 'submitted') return 'pending_review'
-    if (application.value.paymentStatus === 'pending') return 'payment_pending'
+    // Pending with payment = awaiting review
+    if (application.value.status === 'pending' && application.value.paymentVerified) return 'pending'
+    // Pending without payment = still needs to pay
+    if (application.value.status === 'pending' && !application.value.paymentVerified) return 'payment_pending'
+    // Draft status
+    if (application.value.status === 'draft') return 'draft'
     return 'pending'
   })
 
