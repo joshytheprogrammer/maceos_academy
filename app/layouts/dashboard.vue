@@ -47,6 +47,16 @@
           </li>
           <li>
             <NuxtLink 
+              to="/dashboard/exams" 
+              class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all"
+              :class="route.path.startsWith('/dashboard/exams') ? 'bg-primary/10 text-primary border border-primary/20' : 'text-gray-400 hover:bg-surface-darker hover:text-white'"
+            >
+              <span class="material-symbols-outlined text-xl">quiz</span>
+              Examinations
+            </NuxtLink>
+          </li>
+          <li>
+            <NuxtLink 
               to="/dashboard/schedule" 
               class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all"
               :class="route.path.startsWith('/dashboard/schedule') ? 'bg-primary/10 text-primary border border-primary/20' : 'text-gray-400 hover:bg-surface-darker hover:text-white'"

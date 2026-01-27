@@ -310,7 +310,7 @@
           <!-- Left Column: Course Progress -->
           <div class="lg:col-span-2 space-y-6">
             <!-- Live Sessions Widget -->
-            <div v-if="activeLiveSessions.length > 0 || upcomingLiveSessions.length > 0" class="bg-gradient-to-br from-primary/20 via-primary/10 to-transparent border-2 border-primary/40 rounded-2xl p-6 shadow-[0_0_30px_rgba(18,226,105,0.2)]">
+            <div v-if="activeLiveSessions.length > 0 || upcomingLiveSessions.length > 0" class="bg-linear-to-br from-primary/20 via-primary/10 to-transparent border-2 border-primary/40 rounded-2xl p-6 shadow-[0_0_30px_rgba(18,226,105,0.2)]">
               <div class="flex items-center justify-between mb-5">
                 <div class="flex items-center gap-3">
                   <div v-if="activeLiveSessions.length > 0" class="h-3 w-3 bg-primary rounded-full animate-pulse"></div>
@@ -429,7 +429,7 @@
                   :key="event.id"
                   class="flex items-center gap-4 p-4 border border-surface-border rounded-xl hover:border-primary/30 transition-all"
                 >
-                  <div class="text-center min-w-[60px] p-3 bg-primary/10 rounded-xl">
+                  <div class="text-center min-w-15 p-3 bg-primary/10 rounded-xl">
                     <p class="text-2xl font-bold text-primary font-display">{{ event.day }}</p>
                     <p class="text-xs text-text-secondary font-bold uppercase">{{ event.month }}</p>
                   </div>
@@ -511,7 +511,7 @@
                       :class="week < currentWeek 
                         ? 'bg-primary' 
                         : week === currentWeek 
-                          ? 'bg-gradient-to-r from-primary to-primary/30' 
+                          ? 'bg-linear-to-r from-primary to-primary/30' 
                           : 'bg-surface-border'"
                     />
                   </div>
@@ -520,7 +520,7 @@
             </div>
 
             <!-- Need Help Card -->
-            <div class="relative overflow-hidden bg-gradient-to-br from-primary/20 via-primary/10 to-transparent border border-primary/30 rounded-2xl p-6">
+            <div class="relative overflow-hidden bg-linear-to-br from-primary/20 via-primary/10 to-transparent border border-primary/30 rounded-2xl p-6">
               <div class="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
               <span class="material-symbols-outlined text-primary text-3xl mb-4 block">help</span>
               <h3 class="text-lg font-bold text-white font-display mb-2">Need Help?</h3>

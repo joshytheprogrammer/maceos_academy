@@ -69,6 +69,16 @@
               Content
             </NuxtLink>
           </li>
+          <li>
+            <NuxtLink 
+              to="/admin/exams" 
+              class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors"
+              :class="route.path.startsWith('/admin/exams') ? 'bg-green-500/10 text-green-400' : 'text-gray-400 hover:bg-gray-800 hover:text-white'"
+            >
+              <span class="material-symbols-outlined text-[20px]">quiz</span>
+              Exams
+            </NuxtLink>
+          </li>
         </ul>
 
         <!-- Divider -->

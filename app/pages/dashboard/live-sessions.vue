@@ -29,7 +29,7 @@
           <div 
             v-for="session in activeSessions" 
             :key="session.$id"
-            class="group relative overflow-hidden rounded-2xl border-2 border-primary bg-gradient-to-br from-primary/20 via-primary/10 to-transparent p-6 shadow-[0_0_30px_rgba(18,226,105,0.3)]"
+            class="group relative overflow-hidden rounded-2xl border-2 border-primary bg-linear-to-br from-primary/20 via-primary/10 to-transparent p-6 shadow-[0_0_30px_rgba(18,226,105,0.3)]"
           >
             <div class="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
             
