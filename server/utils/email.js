@@ -24,13 +24,18 @@ export const createTransporter = (config) => {
 }
 
 /**
- * Send an email
+ * Sleep utility for retry delays
+ * @param {number} ms - Milliseconds to sleep
+ */
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms))
+
+/**
+ * Send an email with retry logic
  * @param {Object} config - Runtime config with SMTP settings
  * @param {Object} options - Email options (to, subject, html, text)
+ * @param {number} maxRetries - Maximum number of retry attempts (default: 10)
  */
-export const sendEmail = async (config, options) => {
-  const transporter = createTransporter(config)
-
+export const sendEmail = async (config, options, maxRetries = 10) => {
   const mailOptions = {
     from: `"${config.smtpFromName}" <${config.smtpFromEmail}>`,
     to: options.to,
@@ -39,14 +44,56 @@ export const sendEmail = async (config, options) => {
     text: options.text,
   }
 
-  try {
-    const result = await transporter.sendMail(mailOptions)
-    return { success: true, messageId: result.messageId }
+  let lastError = null
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      // Create a fresh transporter for each attempt
+      const transporter = createTransporter(config)
+      
+      // Verify connection before sending
+      let verified = false
+      let verifyAttempts = 0
+      const maxVerifyAttempts = 3
+      
+      while (!verified && verifyAttempts < maxVerifyAttempts) {
+        try {
+          await transporter.verify()
+          verified = true
+        } catch (verifyError) {
+          verifyAttempts++
+          console.log(`[Email] SMTP verify attempt ${verifyAttempts}/${maxVerifyAttempts} failed:`, verifyError.message)
+          if (verifyAttempts < maxVerifyAttempts) {
+            await sleep(2000) // Wait 2 seconds before retry
+          }
+        }
+      }
+      
+      if (!verified) {
+        throw new Error('Failed to verify SMTP connection after multiple attempts')
+      }
+      
+      // Send the email
+      const result = await transporter.sendMail(mailOptions)
+      console.log(`[Email] Sent successfully to ${options.to} on attempt ${attempt}`)
+      return { success: true, messageId: result.messageId }
+      
+    } catch (error) {
+      lastError = error
+      console.error(`[Email] Send attempt ${attempt}/${maxRetries} failed:`, error.message)
+      
+      if (attempt < maxRetries) {
+        // Exponential backoff: 2s, 4s, 8s, 16s... capped at 30s
+        const delay = Math.min(2000 * Math.pow(2, attempt - 1), 30000)
+        console.log(`[Email] Retrying in ${delay / 1000} seconds...`)
+        await sleep(delay)
+      }
+    }
   }
-  catch (error) {
-    console.error('Email send error:', error)
-    return { success: false, error: error.message }
-  }
+  
+  // All retries exhausted
+  console.error(`[Email] All ${maxRetries} attempts failed. Last error:`, lastError?.message)
+  return { success: false, error: lastError?.message || 'Failed to send email after multiple retries' }
 }
 
 /**

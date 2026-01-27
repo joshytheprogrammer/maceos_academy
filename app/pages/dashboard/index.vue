@@ -66,8 +66,105 @@
 
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-6 py-8">
+      <!-- Application Rejected State -->
+      <template v-if="applicationStatus === 'rejected'">
+        <div class="max-w-2xl mx-auto text-center py-12">
+          <!-- Icon -->
+          <div class="mb-8">
+            <div class="w-32 h-32 mx-auto bg-red-500/10 rounded-full flex items-center justify-center">
+              <span class="material-symbols-outlined text-red-400 text-6xl">block</span>
+            </div>
+          </div>
+
+          <!-- Message -->
+          <h2 class="text-3xl font-bold text-white mb-4">
+            Application Not Approved
+          </h2>
+          <p class="text-xl text-text-secondary mb-8">
+            Thank you for your interest in MACEOS Academy
+          </p>
+
+          <!-- Rejection Info Card -->
+          <div class="bg-red-500/10 border border-red-500/30 rounded-2xl p-8 mb-8 text-left">
+            <div class="flex items-start gap-4 mb-6">
+              <div class="w-12 h-12 bg-red-500/20 rounded-full flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined text-red-400 text-2xl">info</span>
+              </div>
+              <div>
+                <h3 class="text-lg font-semibold text-red-400 mb-2">Your Application Status</h3>
+                <p class="text-text-secondary">
+                  After careful review, we regret to inform you that your application has not been accepted at this time. 
+                  This decision was made based on our program requirements and available spots.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- What You Can Do -->
+          <div class="bg-surface-dark border border-surface-border rounded-2xl p-8 mb-8 text-left">
+            <h3 class="text-lg font-semibold text-white mb-6 flex items-center gap-2">
+              <span class="material-symbols-outlined text-primary">lightbulb</span>
+              What You Can Do Next
+            </h3>
+            <ul class="space-y-4">
+              <li class="flex items-start gap-4">
+                <div class="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center shrink-0 mt-1">
+                  <span class="text-primary font-bold">1</span>
+                </div>
+                <div>
+                  <p class="font-medium text-white mb-1">Contact Our Support Team</p>
+                  <p class="text-text-secondary">
+                    Reach out to us if you'd like feedback on your application. We're happy to provide constructive insights.
+                  </p>
+                </div>
+              </li>
+              <li class="flex items-start gap-4">
+                <div class="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center shrink-0 mt-1">
+                  <span class="text-primary font-bold">2</span>
+                </div>
+                <div>
+                  <p class="font-medium text-white mb-1">Consider Applying Again</p>
+                  <p class="text-text-secondary">
+                    We open applications regularly. You're welcome to reapply in the future with updated qualifications or experiences.
+                  </p>
+                </div>
+              </li>
+              <li class="flex items-start gap-4">
+                <div class="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center shrink-0 mt-1">
+                  <span class="text-primary font-bold">3</span>
+                </div>
+                <div>
+                  <p class="font-medium text-white mb-1">Explore Other Programs</p>
+                  <p class="text-text-secondary">
+                    Visit our website to learn about other training programs and opportunities that might be a great fit for you.
+                  </p>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a 
+              href="mailto:support@maceos.academy"
+              class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary hover:bg-primary-dark text-background-dark font-medium rounded-xl transition-colors"
+            >
+              <span class="material-symbols-outlined">email</span>
+              Contact Support
+            </a>
+            <NuxtLink 
+              to="/"
+              class="inline-flex items-center justify-center gap-2 px-6 py-3 border border-primary/50 text-primary hover:bg-primary/10 font-medium rounded-xl transition-colors"
+            >
+              <span class="material-symbols-outlined">home</span>
+              Back to Home
+            </NuxtLink>
+          </div>
+        </div>
+      </template>
+
       <!-- Application Pending Review State -->
-      <template v-if="applicationStatus === 'pending_review'">
+      <template v-else-if="applicationStatus === 'pending'">
         <div class="max-w-2xl mx-auto text-center py-12">
           <!-- Animated Icon -->
           <div class="mb-8 relative">
@@ -406,7 +503,7 @@
       <Transition name="modal">
         <div 
           v-if="showChangePassword" 
-          class="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+          class="fixed inset-0 z-9999 flex items-center justify-center p-4"
         >
           <!-- Backdrop -->
           <div 

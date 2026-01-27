@@ -100,7 +100,7 @@ export const useApplication = () => {
         // Temp password for email (encrypted in DB)
         tempPassword: tempPassword.value || '',
         // Application status
-        status: 'draft',
+        status: 'pending',
         submittedAt: new Date().toISOString(),
       }
 
@@ -229,9 +229,10 @@ export const useApplication = () => {
     if (!application.value) return 'none'
     if (application.value.status === 'approved') return 'approved'
     if (application.value.status === 'rejected') return 'rejected'
+    if (application.value.status === 'pending') return 'pending'
     if (application.value.paymentVerified && application.value.status === 'submitted') return 'pending_review'
     if (application.value.paymentStatus === 'pending') return 'payment_pending'
-    return 'draft'
+    return 'pending'
   })
 
   /**
