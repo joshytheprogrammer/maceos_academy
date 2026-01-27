@@ -1,14 +1,14 @@
-// Auth middleware: User must be logged in
+// Admin middleware: User must be logged in AND have admin label
 export default defineNuxtRouteMiddleware(async (to, from) => {
   const { user, fetchUser, isAdmin } = useAuth()
   const authInitialized = useState('auth_initialized', () => false)
   
-  // On server, we can't check auth - let app.vue handle showing loading screen
+  // On server, we skip - route rules handle SSR=false for admin routes
   if (import.meta.server) {
     return
   }
   
-  // Wait for auth to be initialized (should already be done by app.vue)
+  // Wait for auth to be initialized
   if (!authInitialized.value) {
     await fetchUser()
     authInitialized.value = true
@@ -19,8 +19,8 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     return navigateTo('/login')
   }
   
-  // Admin user trying to access non-admin pages → redirect to admin
-  if (isAdmin.value && !to.path.startsWith('/admin')) {
-    return navigateTo('/admin')
+  // Logged in but not admin → go to dashboard (or show unauthorized)
+  if (!isAdmin.value) {
+    return navigateTo('/dashboard')
   }
 })

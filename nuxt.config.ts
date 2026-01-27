@@ -12,6 +12,7 @@ export default defineNuxtConfig({
     '/login': { ssr: false },        // Login - client only
     '/apply/**': { ssr: false },     // Application flow - client only
     '/dashboard/**': { ssr: false }, // Dashboard - client only
+    '/admin/**': { ssr: false },     // Admin panel - client only
   },
 
   runtimeConfig: {
