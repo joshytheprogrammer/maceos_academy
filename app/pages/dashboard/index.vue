@@ -309,6 +309,73 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <!-- Left Column: Course Progress -->
           <div class="lg:col-span-2 space-y-6">
+            <!-- Live Sessions Widget -->
+            <div v-if="activeLiveSessions.length > 0 || upcomingLiveSessions.length > 0" class="bg-gradient-to-br from-primary/20 via-primary/10 to-transparent border-2 border-primary/40 rounded-2xl p-6 shadow-[0_0_30px_rgba(18,226,105,0.2)]">
+              <div class="flex items-center justify-between mb-5">
+                <div class="flex items-center gap-3">
+                  <div v-if="activeLiveSessions.length > 0" class="h-3 w-3 bg-primary rounded-full animate-pulse"></div>
+                  <h3 class="text-xl font-bold text-white font-display">
+                    {{ activeLiveSessions.length > 0 ? 'Live Now' : 'Upcoming Live Session' }}
+                  </h3>
+                </div>
+                <NuxtLink 
+                  to="/dashboard/live-sessions" 
+                  class="inline-flex items-center gap-1 text-primary hover:text-primary-light text-sm font-bold transition-colors"
+                >
+                  View all
+                  <span class="material-symbols-outlined text-lg">arrow_forward</span>
+                </NuxtLink>
+              </div>
+
+              <div class="space-y-3">
+                <!-- Active Sessions -->
+                <div 
+                  v-for="session in activeLiveSessions.slice(0, 1)" 
+                  :key="session.$id"
+                  class="relative overflow-hidden bg-primary/10 border border-primary/30 rounded-xl p-4"
+                >
+                  <div class="absolute top-0 right-0 w-32 h-32 bg-primary/20 rounded-full blur-2xl"></div>
+                  <div class="relative flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-lg bg-primary/20 flex items-center justify-center shrink-0 animate-pulse">
+                      <span class="material-symbols-outlined text-2xl text-primary">videocam</span>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <h4 class="font-bold text-white mb-1">{{ session.title }}</h4>
+                      <p class="text-sm text-text-secondary mb-3">Week {{ session.week }} • Live Now</p>
+                      <a 
+                        :href="session.liveLink" 
+                        target="_blank"
+                        class="inline-flex items-center justify-center gap-2 h-10 px-5 bg-primary hover:bg-primary-dark text-background-dark text-sm font-bold rounded-lg transition-all shadow-[0_0_15px_rgba(18,226,105,0.3)]"
+                      >
+                        <span class="material-symbols-outlined">videocam</span>
+                        Join Now
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Upcoming Sessions -->
+                <div 
+                  v-for="session in activeLiveSessions.length > 0 ? [] : upcomingLiveSessions.slice(0, 1)" 
+                  :key="session.$id"
+                  class="bg-background-dark/50 border border-surface-border rounded-xl p-4"
+                >
+                  <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-lg bg-amber-500/10 flex items-center justify-center shrink-0">
+                      <span class="material-symbols-outlined text-2xl text-amber-400">schedule</span>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <h4 class="font-bold text-white mb-1">{{ session.title }}</h4>
+                      <p class="text-sm text-text-secondary mb-1">Week {{ session.week }}</p>
+                      <p class="text-sm text-amber-400 font-medium">
+                        Starts {{ formatTimeUntil(session.liveStartTime) }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <!-- Current Week Materials -->
             <div class="bg-surface-dark border border-surface-border rounded-2xl p-6">
               <div class="flex items-center justify-between mb-6">
@@ -567,6 +634,7 @@ definePageMeta({
 
 const { user, logout } = useAuth()
 const { application, applicationStatus, fetchApplication } = useApplication()
+const { content, fetchAllContent } = useContent()
 const authInitialized = useState('auth_initialized', () => false)
 const authReady = computed(() => authInitialized.value)
 
@@ -581,6 +649,53 @@ const passwordForm = ref({
 const isChangingPassword = ref(false)
 const passwordError = ref('')
 const passwordSuccess = ref('')
+
+// Live sessions computed
+const liveSessions = computed(() => {
+  return content.value.filter(item => item.type === 'live-link' && item.isPublished)
+})
+
+const activeLiveSessions = computed(() => {
+  return liveSessions.value.filter(session => isSessionActive(session))
+})
+
+const upcomingLiveSessions = computed(() => {
+  return liveSessions.value
+    .filter(session => isSessionUpcoming(session))
+    .sort((a, b) => new Date(a.liveStartTime) - new Date(b.liveStartTime))
+})
+
+// Session status helpers
+const isSessionActive = (session) => {
+  if (!session.liveStartTime || !session.liveEndTime) return false
+  const now = new Date()
+  const start = new Date(session.liveStartTime)
+  const end = new Date(session.liveEndTime)
+  return now >= new Date(start.getTime() - 15 * 60 * 1000) && 
+         now <= new Date(end.getTime() + 60 * 60 * 1000)
+}
+
+const isSessionUpcoming = (session) => {
+  if (!session.liveStartTime) return false
+  const now = new Date()
+  const start = new Date(session.liveStartTime)
+  return now < new Date(start.getTime() - 15 * 60 * 1000)
+}
+
+const formatTimeUntil = (dateStr) => {
+  const now = new Date()
+  const date = new Date(dateStr)
+  const diffMs = date - now
+  const diffMins = Math.floor(diffMs / 60000)
+  const diffHours = Math.floor(diffMins / 60)
+  const diffDays = Math.floor(diffHours / 24)
+  
+  if (diffMins < 0) return 'now'
+  if (diffMins < 60) return `in ${diffMins} minute${diffMins > 1 ? 's' : ''}`
+  if (diffHours < 24) return `in ${diffHours} hour${diffHours > 1 ? 's' : ''}`
+  if (diffDays < 7) return `in ${diffDays} day${diffDays > 1 ? 's' : ''}`
+  return 'soon'
+}
 
 const handleChangePassword = async () => {
   passwordError.value = ''
@@ -695,6 +810,14 @@ onMounted(() => {
   if (user.value) {
     fetchApplication(user.value.$id)
   }
+  
+  // Fetch all content for live sessions widget
+  fetchAllContent()
+  
+  // Auto-refresh every minute to update live session statuses
+  setInterval(() => {
+    fetchAllContent()
+  }, 60000)
 })
 </script>
 
