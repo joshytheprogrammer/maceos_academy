@@ -94,18 +94,18 @@
               <td class="whitespace-nowrap px-6 py-4">
                 <div class="flex items-center gap-3">
                   <div class="h-10 w-10 rounded-full bg-gray-800 flex items-center justify-center">
-                    <span class="text-sm font-medium text-gray-400">{{ getInitials(app.full_name) }}</span>
+                    <span class="text-sm font-medium text-gray-400">{{ getInitials(app.fullName) }}</span>
                   </div>
                   <div>
-                    <p class="font-medium text-white">{{ app.full_name }}</p>
+                    <p class="font-medium text-white">{{ app.fullName }}</p>
                     <p class="text-sm text-gray-500">{{ app.email }}</p>
                   </div>
                 </div>
               </td>
-              <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-300">{{ app.program_track || 'Not selected' }}</td>
+              <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-300">{{ app.fieldOfStudy || 'Not selected' }}</td>
               <td class="whitespace-nowrap px-6 py-4">
-                <span :class="getPaymentBadgeClass(app.payment_status)" class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium">
-                  {{ app.payment_status || 'pending' }}
+                <span :class="getPaymentBadgeClass(app.paymentVerified)" class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium">
+                  {{ app.paymentVerified ? 'Verified' : 'Pending' }}
                 </span>
               </td>
               <td class="whitespace-nowrap px-6 py-4">
@@ -113,7 +113,7 @@
                   {{ app.status }}
                 </span>
               </td>
-              <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-400">{{ formatDate(app.$createdAt) }}</td>
+              <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-400">{{ formatDate(app.submittedAt || app.$createdAt) }}</td>
               <td class="whitespace-nowrap px-6 py-4 text-right">
                 <NuxtLink :to="`/admin/applications/${app.$id}`" class="text-sm text-green-400 hover:underline">
                   View
@@ -161,29 +161,30 @@ const PAYMENTS_COLLECTION = 'payments'
 // Fetch dashboard data
 const fetchDashboardData = async () => {
   try {
-    // Fetch pending applications count
+    // Fetch pending applications count (status = pending)
     const pendingApps = await databases.listDocuments(DB_ID, APPLICATIONS_COLLECTION, [
       Query.equal('status', 'pending')
     ])
     stats.value.pendingApplications = pendingApps.total
     pendingCount.value = pendingApps.total
 
-    // Fetch approved students count
+    // Fetch approved applications count
     const approvedStudents = await databases.listDocuments(DB_ID, APPLICATIONS_COLLECTION, [
       Query.equal('status', 'approved')
     ])
     stats.value.activeStudents = approvedStudents.total
 
-    // Fetch payments
+    // Fetch verified payments
     const payments = await databases.listDocuments(DB_ID, PAYMENTS_COLLECTION, [
-      Query.equal('status', 'success')
+      Query.equal('verified', true)
     ])
     stats.value.completedPayments = payments.total
+    // Calculate total revenue from verified payments
     stats.value.totalRevenue = payments.documents.reduce((sum, p) => sum + (p.amount || 0), 0)
 
-    // Fetch recent applications
+    // Fetch recent applications that are either pending or approved
     const recent = await databases.listDocuments(DB_ID, APPLICATIONS_COLLECTION, [
-      Query.orderDesc('$createdAt'),
+      Query.orderDesc('$updatedAt'),
       Query.limit(5)
     ])
     recentApplications.value = recent.documents
@@ -207,7 +208,7 @@ const formatDate = (dateStr) => {
 }
 
 const formatCurrency = (amount) => {
-  return new Intl.NumberFormat('en-NG').format(amount / 100)
+  return new Intl.NumberFormat('en-NG').format(amount)
 }
 
 const getStatusBadgeClass = (status) => {
@@ -219,14 +220,8 @@ const getStatusBadgeClass = (status) => {
   return classes[status] || classes.pending
 }
 
-const getPaymentBadgeClass = (status) => {
-  const classes = {
-    pending: 'bg-gray-500/20 text-gray-400',
-    success: 'bg-green-500/20 text-green-400',
-    completed: 'bg-green-500/20 text-green-400',
-    failed: 'bg-red-500/20 text-red-400'
-  }
-  return classes[status] || classes.pending
+const getPaymentBadgeClass = (verified) => {
+  return verified ? 'bg-green-500/20 text-green-400' : 'bg-gray-500/20 text-gray-400'
 }
 
 onMounted(() => {

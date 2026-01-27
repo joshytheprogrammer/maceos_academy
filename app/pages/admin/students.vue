@@ -43,17 +43,17 @@
             <td class="whitespace-nowrap px-6 py-4">
               <div class="flex items-center gap-3">
                 <div class="h-10 w-10 rounded-full bg-green-500/20 flex items-center justify-center">
-                  <span class="text-sm font-medium text-green-400">{{ getInitials(student.full_name) }}</span>
+                  <span class="text-sm font-medium text-green-400">{{ getInitials(student.fullName) }}</span>
                 </div>
                 <div>
-                  <p class="font-medium text-white">{{ student.full_name }}</p>
+                  <p class="font-medium text-white">{{ student.fullName }}</p>
                   <p class="text-sm text-gray-500">{{ student.email }}</p>
                 </div>
               </div>
             </td>
-            <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-300">{{ student.program_track || 'Not specified' }}</td>
+            <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-300">{{ student.fieldOfStudy || 'Not specified' }}</td>
             <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-300">{{ student.country || 'Unknown' }}</td>
-            <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-400">{{ formatDate(student.approved_at || student.$updatedAt) }}</td>
+            <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-400">{{ formatDate(student.submittedAt || student.$updatedAt) }}</td>
             <td class="whitespace-nowrap px-6 py-4 text-right">
               <div class="flex items-center justify-end gap-2">
                 <NuxtLink :to="`/admin/applications/${student.$id}`" class="text-sm text-green-400 hover:underline">
@@ -105,10 +105,10 @@ const filteredStudents = computed(() => {
   
   const query = searchQuery.value.toLowerCase()
   return students.value.filter(s => 
-    s.full_name?.toLowerCase().includes(query) ||
+    s.fullName?.toLowerCase().includes(query) ||
     s.email?.toLowerCase().includes(query) ||
     s.country?.toLowerCase().includes(query) ||
-    s.program_track?.toLowerCase().includes(query)
+    s.fieldOfStudy?.toLowerCase().includes(query)
   )
 })
 

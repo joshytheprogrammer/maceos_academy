@@ -21,18 +21,18 @@
     <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
       <div class="flex items-start gap-4">
         <div class="h-16 w-16 rounded-full bg-gray-800 flex items-center justify-center">
-          <span class="text-2xl font-medium text-gray-400">{{ getInitials(application.full_name) }}</span>
+          <span class="text-2xl font-medium text-gray-400">{{ getInitials(application.fullName) }}</span>
         </div>
         <div>
-          <h1 class="text-2xl font-bold text-white">{{ application.full_name }}</h1>
+          <h1 class="text-2xl font-bold text-white">{{ application.fullName }}</h1>
           <p class="text-gray-400">{{ application.email }}</p>
           <div class="mt-2 flex flex-wrap gap-2">
             <span :class="getStatusBadgeClass(application.status)" class="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium capitalize">
               {{ application.status }}
             </span>
-            <span :class="getPaymentBadgeClass(application.payment_status)" class="inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-medium">
-              <span class="material-symbols-outlined text-[14px]">{{ application.payment_status === 'success' ? 'check_circle' : 'schedule' }}</span>
-              {{ application.payment_status === 'success' ? 'Paid' : 'Payment Pending' }}
+            <span :class="getPaymentBadgeClass(application.paymentVerified)" class="inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-medium">
+              <span class="material-symbols-outlined text-[14px]">{{ application.paymentVerified ? 'check_circle' : 'schedule' }}</span>
+              {{ application.paymentVerified ? 'Verified' : 'Payment Pending' }}
             </span>
           </div>
         </div>
@@ -49,7 +49,7 @@
           Reject
         </button>
         <button 
-          v-if="application.status === 'pending' && application.payment_status === 'success'"
+          v-if="application.status === 'pending' && application.paymentVerified"
           @click="showApproveModal = true"
           class="rounded-lg bg-green-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-600"
         >
@@ -72,7 +72,7 @@
           <div class="grid gap-4 sm:grid-cols-2">
             <div>
               <p class="text-sm text-gray-500">Full Name</p>
-              <p class="mt-1 text-white">{{ application.full_name }}</p>
+              <p class="mt-1 text-white">{{ application.fullName }}</p>
             </div>
             <div>
               <p class="text-sm text-gray-500">Email</p>
@@ -88,11 +88,11 @@
             </div>
             <div>
               <p class="text-sm text-gray-500">Date of Birth</p>
-              <p class="mt-1 text-white">{{ application.date_of_birth ? formatDate(application.date_of_birth) : 'Not provided' }}</p>
+              <p class="mt-1 text-white">{{ application.dateOfBirth ? formatDate(application.dateOfBirth) : 'Not provided' }}</p>
             </div>
             <div>
-              <p class="text-sm text-gray-500">Gender</p>
-              <p class="mt-1 text-white capitalize">{{ application.gender || 'Not provided' }}</p>
+              <p class="text-sm text-gray-500">Years of Experience</p>
+              <p class="mt-1 text-white">{{ application.yearsOfExperience || 'Not provided' }}</p>
             </div>
           </div>
         </div>
@@ -102,41 +102,24 @@
           <h3 class="text-lg font-semibold text-white mb-4">Educational Background</h3>
           <div class="grid gap-4 sm:grid-cols-2">
             <div>
-              <p class="text-sm text-gray-500">Education Level</p>
-              <p class="mt-1 text-white">{{ application.education_level || 'Not provided' }}</p>
-            </div>
-            <div>
-              <p class="text-sm text-gray-500">Institution</p>
-              <p class="mt-1 text-white">{{ application.institution || 'Not provided' }}</p>
+              <p class="text-sm text-gray-500">Highest Education</p>
+              <p class="mt-1 text-white">{{ application.highestEducation || 'Not provided' }}</p>
             </div>
             <div>
               <p class="text-sm text-gray-500">Field of Study</p>
-              <p class="mt-1 text-white">{{ application.field_of_study || 'Not provided' }}</p>
+              <p class="mt-1 text-white">{{ application.fieldOfStudy || 'Not provided' }}</p>
             </div>
             <div>
-              <p class="text-sm text-gray-500">Graduation Year</p>
-              <p class="mt-1 text-white">{{ application.graduation_year || 'Not provided' }}</p>
+              <p class="text-sm text-gray-500">Current Occupation</p>
+              <p class="mt-1 text-white">{{ application.currentOccupation || 'Not provided' }}</p>
             </div>
           </div>
         </div>
 
-        <!-- Program Selection -->
+        <!-- Motivation -->
         <div class="rounded-xl border border-gray-800 bg-gray-900 p-6">
-          <h3 class="text-lg font-semibold text-white mb-4">Program Selection</h3>
-          <div class="grid gap-4 sm:grid-cols-2">
-            <div>
-              <p class="text-sm text-gray-500">Program Track</p>
-              <p class="mt-1 text-white">{{ application.program_track || 'Not selected' }}</p>
-            </div>
-            <div>
-              <p class="text-sm text-gray-500">Learning Goals</p>
-              <p class="mt-1 text-white">{{ application.learning_goals || 'Not provided' }}</p>
-            </div>
-          </div>
-          <div v-if="application.motivation" class="mt-4">
-            <p class="text-sm text-gray-500">Motivation</p>
-            <p class="mt-1 text-white whitespace-pre-wrap">{{ application.motivation }}</p>
-          </div>
+          <h3 class="text-lg font-semibold text-white mb-4">Why Join MACEOS?</h3>
+          <p class="text-white whitespace-pre-wrap">{{ application.whyJoin || 'Not provided' }}</p>
         </div>
       </div>
 
@@ -155,23 +138,23 @@
               </div>
               <div class="pb-4">
                 <p class="font-medium text-white">Application Submitted</p>
-                <p class="text-sm text-gray-500">{{ formatDateTime(application.$createdAt) }}</p>
+                <p class="text-sm text-gray-500">{{ formatDateTime(application.submittedAt || application.$createdAt) }}</p>
               </div>
             </div>
             
             <div class="flex gap-3">
               <div class="flex flex-col items-center">
-                <div :class="application.payment_status === 'success' ? 'bg-green-500/20' : 'bg-gray-700'" class="h-8 w-8 rounded-full flex items-center justify-center">
-                  <span class="material-symbols-outlined text-[16px]" :class="application.payment_status === 'success' ? 'text-green-400' : 'text-gray-500'">
-                    {{ application.payment_status === 'success' ? 'check' : 'schedule' }}
+                <div :class="application.paymentVerified ? 'bg-green-500/20' : 'bg-gray-700'" class="h-8 w-8 rounded-full flex items-center justify-center">
+                  <span class="material-symbols-outlined text-[16px]" :class="application.paymentVerified ? 'text-green-400' : 'text-gray-500'">
+                    {{ application.paymentVerified ? 'check' : 'schedule' }}
                   </span>
                 </div>
                 <div class="w-px flex-1 bg-gray-700"></div>
               </div>
               <div class="pb-4">
-                <p class="font-medium" :class="application.payment_status === 'success' ? 'text-white' : 'text-gray-500'">Payment</p>
+                <p class="font-medium" :class="application.paymentVerified ? 'text-white' : 'text-gray-500'">Payment</p>
                 <p class="text-sm text-gray-500">
-                  {{ application.payment_status === 'success' ? 'Completed' : 'Pending payment' }}
+                  {{ application.paymentVerified ? 'Verified' : 'Pending payment' }}
                 </p>
               </div>
             </div>
@@ -195,26 +178,22 @@
         </div>
 
         <!-- Payment Details -->
-        <div v-if="payment" class="rounded-xl border border-gray-800 bg-gray-900 p-6">
+        <div v-if="application.paymentAmount" class="rounded-xl border border-gray-800 bg-gray-900 p-6">
           <h3 class="text-lg font-semibold text-white mb-4">Payment Details</h3>
           <div class="space-y-3">
             <div class="flex justify-between">
               <p class="text-sm text-gray-500">Amount</p>
-              <p class="text-white font-medium">₦{{ formatCurrency(payment.amount) }}</p>
+              <p class="text-white font-medium">₦{{ formatCurrency(application.paymentAmount) }}</p>
             </div>
             <div class="flex justify-between">
               <p class="text-sm text-gray-500">Reference</p>
-              <p class="text-white font-mono text-sm">{{ payment.reference }}</p>
+              <p class="text-white font-mono text-sm">{{ application.paymentReference || 'N/A' }}</p>
             </div>
             <div class="flex justify-between">
               <p class="text-sm text-gray-500">Status</p>
-              <span :class="payment.status === 'success' ? 'text-green-400' : 'text-amber-400'" class="text-sm font-medium capitalize">
-                {{ payment.status }}
+              <span :class="application.paymentVerified ? 'text-green-400' : 'text-amber-400'" class="text-sm font-medium">
+                {{ application.paymentVerified ? 'Verified' : 'Pending' }}
               </span>
-            </div>
-            <div class="flex justify-between">
-              <p class="text-sm text-gray-500">Date</p>
-              <p class="text-white text-sm">{{ formatDateTime(payment.$createdAt) }}</p>
             </div>
           </div>
         </div>
@@ -246,7 +225,7 @@
           </div>
           <h3 class="text-lg font-semibold text-white">Approve Application</h3>
           <p class="mt-2 text-gray-400">
-            You are about to approve <span class="font-medium text-white">{{ application.full_name }}</span>'s application.
+            You are about to approve <span class="font-medium text-white">{{ application.fullName }}</span>'s application.
           </p>
           <div class="mt-4 rounded-lg bg-gray-800/50 p-4">
             <p class="text-sm text-gray-400">This action will:</p>
@@ -295,7 +274,7 @@
           </div>
           <h3 class="text-lg font-semibold text-white">Reject Application</h3>
           <p class="mt-2 text-gray-400">
-            Are you sure you want to reject <span class="font-medium text-white">{{ application.full_name }}</span>'s application?
+            Are you sure you want to reject <span class="font-medium text-white">{{ application.fullName }}</span>'s application?
           </p>
           
           <div class="mt-4">
@@ -365,11 +344,11 @@ const fetchApplication = async () => {
     application.value = doc
 
     // Fetch payment if exists
-    if (doc.user_id) {
+    if (doc.userId) {
       try {
         const paymentDocs = await databases.listDocuments(DB_ID, PAYMENTS_COLLECTION, [
-          Query.equal('user_id', doc.user_id),
-          Query.equal('status', 'success'),
+          Query.equal('userId', doc.userId),
+          Query.equal('verified', true),
           Query.limit(1)
         ])
         if (paymentDocs.documents.length > 0) {
@@ -395,7 +374,7 @@ const approveApplication = async () => {
       method: 'POST',
       body: {
         applicationId: application.value.$id,
-        userId: application.value.user_id
+        userId: application.value.userId
       }
     })
 
@@ -477,7 +456,7 @@ const formatDateTime = (dateStr) => {
 }
 
 const formatCurrency = (amount) => {
-  return new Intl.NumberFormat('en-NG').format(amount / 100)
+  return new Intl.NumberFormat('en-NG').format(amount)
 }
 
 const getStatusBadgeClass = (status) => {
@@ -489,13 +468,8 @@ const getStatusBadgeClass = (status) => {
   return classes[status] || classes.pending
 }
 
-const getPaymentBadgeClass = (status) => {
-  const classes = {
-    pending: 'bg-gray-500/20 text-gray-400',
-    success: 'bg-green-500/20 text-green-400',
-    failed: 'bg-red-500/20 text-red-400'
-  }
-  return classes[status] || classes.pending
+const getPaymentBadgeClass = (verified) => {
+  return verified ? 'bg-green-500/20 text-green-400' : 'bg-gray-500/20 text-gray-400'
 }
 
 onMounted(() => {

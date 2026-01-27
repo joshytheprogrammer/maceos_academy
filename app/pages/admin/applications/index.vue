@@ -27,7 +27,7 @@
         >
           <option value="all">All Payments</option>
           <option value="pending">Payment Pending</option>
-          <option value="success">Paid</option>
+          <option value="verified">Verified</option>
         </select>
       </div>
     </div>
@@ -49,11 +49,11 @@
         Pending Review ({{ stats.pending }})
       </button>
       <button 
-        @click="statusFilter = 'all'; paymentFilter = 'success'"
-        :class="paymentFilter === 'success' ? 'bg-blue-500 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'"
+        @click="statusFilter = 'all'; paymentFilter = 'verified'"
+        :class="paymentFilter === 'verified' ? 'bg-blue-500 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'"
         class="rounded-full px-4 py-1.5 text-sm font-medium transition-colors"
       >
-        Paid ({{ stats.paid }})
+        Verified Payment ({{ stats.verified }})
       </button>
       <button 
         @click="statusFilter = 'approved'"
@@ -87,22 +87,22 @@
             <td class="whitespace-nowrap px-6 py-4">
               <div class="flex items-center gap-3">
                 <div class="h-10 w-10 rounded-full bg-gray-800 flex items-center justify-center">
-                  <span class="text-sm font-medium text-gray-400">{{ getInitials(app.full_name) }}</span>
+                  <span class="text-sm font-medium text-gray-400">{{ getInitials(app.fullName) }}</span>
                 </div>
                 <div>
-                  <p class="font-medium text-white">{{ app.full_name }}</p>
+                  <p class="font-medium text-white">{{ app.fullName }}</p>
                   <p class="text-sm text-gray-500">{{ app.email }}</p>
                 </div>
               </div>
             </td>
             <td class="whitespace-nowrap px-6 py-4">
-              <p class="text-sm text-gray-300">{{ app.program_track || 'Not selected' }}</p>
+              <p class="text-sm text-gray-300">{{ app.fieldOfStudy || 'Not selected' }}</p>
               <p class="text-xs text-gray-500">{{ app.country || 'Unknown' }}</p>
             </td>
             <td class="whitespace-nowrap px-6 py-4">
-              <span :class="getPaymentBadgeClass(app.payment_status)" class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium">
-                <span class="material-symbols-outlined text-[14px]">{{ app.payment_status === 'success' ? 'check_circle' : 'schedule' }}</span>
-                {{ app.payment_status === 'success' ? 'Paid' : 'Pending' }}
+              <span :class="getPaymentBadgeClass(app.paymentVerified)" class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium">
+                <span class="material-symbols-outlined text-[14px]">{{ app.paymentVerified ? 'check_circle' : 'schedule' }}</span>
+                {{ app.paymentVerified ? 'Verified' : 'Pending' }}
               </span>
             </td>
             <td class="whitespace-nowrap px-6 py-4">
@@ -111,7 +111,7 @@
               </span>
             </td>
             <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-400">
-              {{ formatDate(app.$createdAt) }}
+              {{ formatDate(app.submittedAt || app.$createdAt) }}
             </td>
             <td class="whitespace-nowrap px-6 py-4 text-right">
               <div class="flex items-center justify-end gap-2">
@@ -122,7 +122,7 @@
                   View
                 </NuxtLink>
                 <button 
-                  v-if="app.status === 'pending' && app.payment_status === 'success'"
+                  v-if="app.status === 'pending' && app.paymentVerified"
                   @click="quickApprove(app)"
                   class="rounded-lg bg-green-500/20 px-3 py-1.5 text-sm font-medium text-green-400 transition-colors hover:bg-green-500/30"
                 >
@@ -171,7 +171,7 @@
         <div class="relative w-full max-w-md rounded-xl border border-gray-800 bg-gray-900 p-6">
           <h3 class="text-lg font-semibold text-white">Approve Application</h3>
           <p class="mt-2 text-gray-400">
-            Are you sure you want to approve <span class="text-white font-medium">{{ selectedApp?.full_name }}</span>'s application?
+            Are you sure you want to approve <span class="text-white font-medium">{{ selectedApp?.fullName }}</span>'s application?
           </p>
           <p class="mt-2 text-sm text-gray-500">
             This will add the 'student' label to their account and send them a welcome email with login instructions.
@@ -227,7 +227,7 @@ const stats = ref({
   total: 0,
   pending: 0,
   approved: 0,
-  paid: 0
+  verified: 0
 })
 
 // Modal state
@@ -244,7 +244,7 @@ const filteredApplications = computed(() => {
   }
 
   if (paymentFilter.value !== 'all') {
-    filtered = filtered.filter(a => a.payment_status === paymentFilter.value)
+    filtered = filtered.filter(a => (paymentFilter.value === 'verified' ? a.paymentVerified : !a.paymentVerified))
   }
 
   return filtered
@@ -257,7 +257,7 @@ const fetchApplications = async () => {
   loading.value = true
   try {
     const queries = [
-      Query.orderDesc('$createdAt'),
+      Query.orderDesc('$updatedAt'),
       Query.limit(100) // Get more for client-side filtering
     ]
 
@@ -269,7 +269,7 @@ const fetchApplications = async () => {
     stats.value.total = response.total
     stats.value.pending = response.documents.filter(a => a.status === 'pending').length
     stats.value.approved = response.documents.filter(a => a.status === 'approved').length
-    stats.value.paid = response.documents.filter(a => a.payment_status === 'success').length
+    stats.value.verified = response.documents.filter(a => a.paymentVerified).length
     
     // Update navbar pending count
     const pendingCount = useState('admin_pending_count', () => 0)
@@ -296,7 +296,7 @@ const confirmApprove = async () => {
       method: 'POST',
       body: {
         applicationId: selectedApp.value.$id,
-        userId: selectedApp.value.user_id
+        userId: selectedApp.value.userId
       }
     })
 
@@ -348,13 +348,8 @@ const getStatusBadgeClass = (status) => {
   return classes[status] || classes.pending
 }
 
-const getPaymentBadgeClass = (status) => {
-  const classes = {
-    pending: 'bg-gray-500/20 text-gray-400',
-    success: 'bg-green-500/20 text-green-400',
-    failed: 'bg-red-500/20 text-red-400'
-  }
-  return classes[status] || classes.pending
+const getPaymentBadgeClass = (verified) => {
+  return verified ? 'bg-green-500/20 text-green-400' : 'bg-gray-500/20 text-gray-400'
 }
 
 // Watch for filter changes via URL

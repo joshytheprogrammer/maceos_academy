@@ -15,9 +15,8 @@
         class="rounded-lg border border-gray-700 bg-gray-800 px-4 py-2 text-sm text-white focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
       >
         <option value="all">All Payments</option>
-        <option value="success">Successful</option>
-        <option value="pending">Pending</option>
-        <option value="failed">Failed</option>
+        <option value="true">Verified</option>
+        <option value="false">Unverified</option>
       </select>
     </div>
 
@@ -60,19 +59,19 @@
               <p class="font-mono text-sm text-gray-300">{{ payment.reference }}</p>
             </td>
             <td class="whitespace-nowrap px-6 py-4">
-              <p class="text-sm text-white">{{ payment.customer_email || 'N/A' }}</p>
+              <p class="text-sm text-white">{{ payment.customerEmail || 'N/A' }}</p>
             </td>
             <td class="whitespace-nowrap px-6 py-4">
               <p class="font-medium text-white">₦{{ formatCurrency(payment.amount) }}</p>
             </td>
             <td class="whitespace-nowrap px-6 py-4">
-              <span :class="getStatusBadgeClass(payment.status)" class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium capitalize">
-                <span class="material-symbols-outlined text-[14px]">{{ payment.status === 'success' ? 'check_circle' : payment.status === 'failed' ? 'cancel' : 'schedule' }}</span>
-                {{ payment.status }}
+              <span :class="getStatusBadgeClass(payment.verified)" class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium">
+                <span class="material-symbols-outlined text-[14px]">{{ payment.verified ? 'check_circle' : 'schedule' }}</span>
+                {{ payment.verified ? 'Verified' : 'Unverified' }}
               </span>
             </td>
-            <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-400 capitalize">{{ payment.channel || 'N/A' }}</td>
-            <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-400">{{ formatDate(payment.paid_at || payment.$createdAt) }}</td>
+            <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-400 capitalize">{{ payment.gateway || 'N/A' }}</td>
+            <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-400">{{ formatDate(payment.paidAt || payment.$createdAt) }}</td>
           </tr>
           <tr v-if="filteredPayments.length === 0 && !loading">
             <td colspan="6" class="px-6 py-12 text-center text-gray-500">
@@ -115,7 +114,8 @@ const stats = ref({
 // Computed
 const filteredPayments = computed(() => {
   if (statusFilter.value === 'all') return payments.value
-  return payments.value.filter(p => p.status === statusFilter.value)
+  const isVerified = statusFilter.value === 'true'
+  return payments.value.filter(p => p.verified === isVerified)
 })
 
 // Fetch payments
@@ -129,15 +129,15 @@ const fetchPayments = async () => {
     payments.value = response.documents
 
     // Calculate stats
-    const successfulPayments = response.documents.filter(p => p.status === 'success')
-    stats.value.totalRevenue = successfulPayments.reduce((sum, p) => sum + (p.amount || 0), 0)
-    stats.value.successful = successfulPayments.length
+    const verifiedPayments = response.documents.filter(p => p.verified === true)
+    stats.value.totalRevenue = verifiedPayments.reduce((sum, p) => sum + (p.amount || 0), 0)
+    stats.value.successful = verifiedPayments.length
 
     // This month calculation
     const now = new Date()
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
-    stats.value.thisMonth = successfulPayments
-      .filter(p => new Date(p.paid_at || p.$createdAt) >= startOfMonth)
+    stats.value.thisMonth = verifiedPayments
+      .filter(p => new Date(p.paidAt || p.$createdAt) >= startOfMonth)
       .reduce((sum, p) => sum + (p.amount || 0), 0)
   } catch (error) {
     console.error('Error fetching payments:', error)
@@ -148,7 +148,7 @@ const fetchPayments = async () => {
 
 // Helpers
 const formatCurrency = (amount) => {
-  return new Intl.NumberFormat('en-NG').format(amount / 100)
+  return new Intl.NumberFormat('en-NG').format(amount)
 }
 
 const formatDate = (dateStr) => {
@@ -162,13 +162,8 @@ const formatDate = (dateStr) => {
   })
 }
 
-const getStatusBadgeClass = (status) => {
-  const classes = {
-    success: 'bg-green-500/20 text-green-400',
-    pending: 'bg-amber-500/20 text-amber-400',
-    failed: 'bg-red-500/20 text-red-400'
-  }
-  return classes[status] || classes.pending
+const getStatusBadgeClass = (verified) => {
+  return verified ? 'bg-green-500/20 text-green-400' : 'bg-amber-500/20 text-amber-400'
 }
 
 onMounted(() => {

@@ -38,11 +38,20 @@ export default defineEventHandler(async (event) => {
     const APPLICATIONS_COLLECTION = 'applications'
 
     // Get the application first to get user details
-    const application = await tablesDB.getRow({
-      databaseId: DB_ID,
-      tableId: APPLICATIONS_COLLECTION,
-      rowId: applicationId,
-    })
+    let application
+    try {
+      application = await tablesDB.getRow({
+        databaseId: DB_ID,
+        tableId: APPLICATIONS_COLLECTION,
+        rowId: applicationId,
+      })
+    } catch (docError) {
+      console.error('Error fetching application row:', docError)
+      throw createError({
+        statusCode: 404,
+        statusMessage: 'Application not found or error fetching data',
+      })
+    }
 
     if (!application) {
       throw createError({
@@ -66,13 +75,12 @@ export default defineEventHandler(async (event) => {
       rowId: applicationId,
       data: {
         status: 'approved',
-        approved_at: new Date().toISOString(),
       },
     })
 
     // Add 'student' label to the user if userId is provided
-    if (userId || application.user_id) {
-      const targetUserId = userId || application.user_id
+    if (userId || application.userId) {
+      const targetUserId = userId || application.userId
       
       try {
         // Get current user labels
@@ -93,7 +101,7 @@ export default defineEventHandler(async (event) => {
     // Send approval email
     try {
       const emailContent = emailTemplates.applicationApproved({
-        name: application.full_name,
+        name: application.fullName,
         email: application.email,
       })
 

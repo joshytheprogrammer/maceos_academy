@@ -37,11 +37,20 @@ export default defineEventHandler(async (event) => {
     const APPLICATIONS_COLLECTION = 'applications'
 
     // Get the application first
-    const application = await tablesDB.getRow({
-      databaseId: DB_ID,
-      tableId: APPLICATIONS_COLLECTION,
-      rowId: applicationId,
-    })
+    let application
+    try {
+      application = await tablesDB.getRow({
+        databaseId: DB_ID,
+        tableId: APPLICATIONS_COLLECTION,
+        rowId: applicationId,
+      })
+    } catch (docError) {
+      console.error('Error fetching application row:', docError)
+      throw createError({
+        statusCode: 404,
+        statusMessage: 'Application not found or error fetching data',
+      })
+    }
 
     if (!application) {
       throw createError({
@@ -65,8 +74,6 @@ export default defineEventHandler(async (event) => {
       rowId: applicationId,
       data: {
         status: 'rejected',
-        rejected_at: new Date().toISOString(),
-        rejection_reason: reason || null,
       },
     })
 
@@ -100,7 +107,7 @@ export default defineEventHandler(async (event) => {
               <h2 style="margin: 0 0 20px; color: #ffffff; font-size: 24px;">Application Update</h2>
               
               <p style="margin: 0 0 20px; color: #a3a3a3; font-size: 16px; line-height: 1.6;">
-                Dear ${application.full_name},
+                Dear ${application.fullName},
               </p>
               
               <p style="margin: 0 0 20px; color: #a3a3a3; font-size: 16px; line-height: 1.6;">
@@ -145,7 +152,7 @@ export default defineEventHandler(async (event) => {
         to: application.email,
         subject: 'MACEOS Academy - Application Update',
         html: emailHtml,
-        text: `Dear ${application.full_name},\n\nThank you for your interest in MACEOS Academy. After careful review of your application, we regret to inform you that we are unable to offer you a place in our program at this time.\n\n${reason ? `Feedback: ${reason}\n\n` : ''}We encourage you to apply again in the future.\n\nBest regards,\nMACEOS Academy Admissions Team`,
+        text: `Dear ${application.fullName},\n\nThank you for your interest in MACEOS Academy. After careful review of your application, we regret to inform you that we are unable to offer you a place in our program at this time.\n\n${reason ? `Feedback: ${reason}\n\n` : ''}We encourage you to apply again in the future.\n\nBest regards,\nMACEOS Academy Admissions Team`,
       })
     } catch (emailError) {
       console.error('Error sending rejection email:', emailError)
