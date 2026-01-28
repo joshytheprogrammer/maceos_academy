@@ -323,6 +323,7 @@ const examId = route.params.id
 
 const { user } = useAuth()
 const { getExam, getUserAttempts, startExamAttempt, saveAnswers, isExamAvailable } = useExam()
+const { functions } = await import('~/utils/appwrite')
 
 // Page State
 const pageLoading = ref(true)
@@ -475,15 +476,26 @@ const submitExam = async (autoSubmit = false) => {
   try {
     const timeSpent = (exam.value.duration * 60) - timeRemaining.value
     
-    const result = await $fetch('/api/exams/submit', {
-      method: 'POST',
-      body: {
+    // Call Appwrite Function for secure grading
+    const execution = await functions.createExecution(
+      'grade-exam',
+      JSON.stringify({
         attemptId: currentAttempt.value.$id,
         examId: examId,
         answers: answers.value,
         timeSpent
-      }
-    })
+      }),
+      false, // async = false (wait for result)
+      '/',   // path
+      'POST' // method
+    )
+    
+    // Parse the function response
+    const result = JSON.parse(execution.responseBody)
+    
+    if (!result.success) {
+      throw new Error(result.error || 'Grading failed')
+    }
     
     examResult.value = result
     showResults.value = true
