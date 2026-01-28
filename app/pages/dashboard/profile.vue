@@ -6,6 +6,44 @@
       <p class="mt-1 text-gray-400">Manage your account settings and preferences</p>
     </div>
 
+    <!-- Email Verification Alert -->
+    <div v-if="!isEmailVerified" class="mb-6 rounded-2xl border-2 border-yellow-500/50 bg-yellow-500/10 p-6">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex items-start gap-4">
+          <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-yellow-500/20">
+            <span class="material-symbols-outlined text-2xl text-yellow-400">mark_email_unread</span>
+          </div>
+          <div>
+            <h3 class="font-bold text-yellow-300">Verify Your Email Address</h3>
+            <p class="mt-1 text-sm text-yellow-200/80">
+              Please verify your email to access all features and receive important updates about your program.
+            </p>
+          </div>
+        </div>
+        <button
+          @click="handleSendVerification"
+          :disabled="sendingVerification || verificationCooldown > 0"
+          class="flex shrink-0 items-center gap-2 rounded-lg bg-yellow-500 px-6 py-3 font-bold text-yellow-900 transition-all hover:bg-yellow-400 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <span v-if="sendingVerification" class="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"></span>
+          <span v-else class="material-symbols-outlined">send</span>
+          <span v-if="verificationCooldown > 0">Resend in {{ verificationCooldown }}s</span>
+          <span v-else-if="sendingVerification">Sending...</span>
+          <span v-else>Send Verification Email</span>
+        </button>
+      </div>
+      <!-- Success message -->
+      <p v-if="verificationSent" class="mt-4 flex items-center gap-2 text-sm text-green-400">
+        <span class="material-symbols-outlined">check_circle</span>
+        Verification email sent! Check your inbox and spam folder.
+      </p>
+      <!-- Error message -->
+      <p v-if="verificationError" class="mt-4 flex items-center gap-2 text-sm text-red-400">
+        <span class="material-symbols-outlined">error</span>
+        {{ verificationError }}
+      </p>
+    </div>
+
     <!-- Profile Overview Card -->
     <div class="mb-6 rounded-2xl border border-surface-border bg-surface-dark p-6">
       <div class="flex items-start gap-6">
@@ -328,7 +366,42 @@ definePageMeta({
   middleware: ['auth']
 })
 
-const { user, updatePassword, updateName } = useAuth()
+const { user, updatePassword, updateName, isEmailVerified, sendVerificationEmail } = useAuth()
+
+// Email Verification
+const sendingVerification = ref(false)
+const verificationSent = ref(false)
+const verificationError = ref('')
+const verificationCooldown = ref(0)
+
+const handleSendVerification = async () => {
+  if (sendingVerification.value || verificationCooldown.value > 0) return
+  
+  sendingVerification.value = true
+  verificationSent.value = false
+  verificationError.value = ''
+  
+  try {
+    const result = await sendVerificationEmail()
+    if (result.success) {
+      verificationSent.value = true
+      // Start cooldown timer (60 seconds)
+      verificationCooldown.value = 60
+      const timer = setInterval(() => {
+        verificationCooldown.value--
+        if (verificationCooldown.value <= 0) {
+          clearInterval(timer)
+        }
+      }, 1000)
+    } else {
+      verificationError.value = result.error || 'Failed to send verification email'
+    }
+  } catch (e) {
+    verificationError.value = 'An unexpected error occurred'
+  } finally {
+    sendingVerification.value = false
+  }
+}
 
 // Personal Info Form
 const personalForm = ref({

@@ -215,6 +215,52 @@ export const useAuth = () => {
     }
   }
 
+  /**
+   * Send email verification
+   */
+  const sendVerificationEmail = async () => {
+    loading.value = true
+    error.value = null
+    try {
+      // URL where user will be redirected after clicking verification link
+      const verifyUrl = `${window.location.origin}/verify-email`
+      await account.createVerification({ url: verifyUrl })
+      return { success: true }
+    }
+    catch (e) {
+      error.value = e.message
+      return { success: false, error: e.message }
+    }
+    finally {
+      loading.value = false
+    }
+  }
+
+  /**
+   * Complete email verification (called after clicking link)
+   */
+  const completeVerification = async (userId, secret) => {
+    loading.value = true
+    error.value = null
+    try {
+      await account.updateVerification({ userId, secret })
+      await fetchUser() // Refresh user data
+      return { success: true }
+    }
+    catch (e) {
+      error.value = e.message
+      return { success: false, error: e.message }
+    }
+    finally {
+      loading.value = false
+    }
+  }
+
+  /**
+   * Check if email is verified
+   */
+  const isEmailVerified = computed(() => user.value?.emailVerification === true)
+
   return {
     user,
     loading,
@@ -224,6 +270,7 @@ export const useAuth = () => {
     login,
     logout,
     isAuthenticated,
+    isLoggedIn: isAuthenticated,
     hasRole,
     isAdmin,
     isStudent,
@@ -232,5 +279,8 @@ export const useAuth = () => {
     updateEmail,
     getPrefs,
     updatePrefs,
+    sendVerificationEmail,
+    completeVerification,
+    isEmailVerified,
   }
 }

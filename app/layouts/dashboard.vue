@@ -138,6 +138,39 @@
         </div>
       </header>
 
+      <!-- Email Verification Banner -->
+      <div v-if="!isEmailVerified" class="bg-gradient-to-r from-yellow-500/20 via-yellow-500/10 to-yellow-500/20 border-b border-yellow-500/30 px-8 py-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-yellow-400 animate-pulse">warning</span>
+            <p class="text-sm font-medium text-yellow-200">
+              <span class="font-bold">Action Required:</span> Please verify your email address to access all features.
+            </p>
+          </div>
+          <div class="flex items-center gap-3">
+            <button
+              @click="handleSendVerificationFromBanner"
+              :disabled="sendingVerificationBanner || bannerCooldown > 0"
+              class="flex items-center gap-2 rounded-lg bg-yellow-500 px-4 py-1.5 text-sm font-bold text-yellow-900 transition-all hover:bg-yellow-400 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <span v-if="sendingVerificationBanner" class="h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent"></span>
+              <span v-if="bannerCooldown > 0">{{ bannerCooldown }}s</span>
+              <span v-else-if="sendingVerificationBanner">Sending...</span>
+              <span v-else>Verify Now</span>
+            </button>
+            <NuxtLink 
+              to="/dashboard/profile"
+              class="text-sm text-yellow-300 hover:text-yellow-100 underline underline-offset-2"
+            >
+              Learn more
+            </NuxtLink>
+          </div>
+        </div>
+        <p v-if="bannerVerificationSent" class="mt-2 text-xs text-green-400">
+          ✓ Verification email sent! Check your inbox.
+        </p>
+      </div>
+
       <!-- Page Content -->
       <main class="p-8">
         <slot />
@@ -148,7 +181,39 @@
 
 <script setup>
 const route = useRoute()
-const { user, logout } = useAuth()
+const { user, logout, isEmailVerified, sendVerificationEmail } = useAuth()
+
+// Email verification from banner
+const sendingVerificationBanner = ref(false)
+const bannerVerificationSent = ref(false)
+const bannerCooldown = ref(0)
+
+const handleSendVerificationFromBanner = async () => {
+  if (sendingVerificationBanner.value || bannerCooldown.value > 0) return
+  
+  sendingVerificationBanner.value = true
+  bannerVerificationSent.value = false
+  
+  try {
+    const result = await sendVerificationEmail()
+    if (result.success) {
+      bannerVerificationSent.value = true
+      bannerCooldown.value = 60
+      const timer = setInterval(() => {
+        bannerCooldown.value--
+        if (bannerCooldown.value <= 0) {
+          clearInterval(timer)
+        }
+      }, 1000)
+      // Hide success message after 5 seconds
+      setTimeout(() => {
+        bannerVerificationSent.value = false
+      }, 5000)
+    }
+  } finally {
+    sendingVerificationBanner.value = false
+  }
+}
 
 // Compute page title from route
 const pageTitle = computed(() => {
