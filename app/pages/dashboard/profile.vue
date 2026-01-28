@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-4xl">
+  <div class="w-full">
     <!-- Page Header -->
     <div class="mb-8">
       <h1 class="text-2xl font-bold text-white">My Profile</h1>

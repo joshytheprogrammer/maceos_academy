@@ -32,16 +32,19 @@ export default defineEventHandler(async (event) => {
 
     if (response.documents.length > 0) {
       const app = response.documents[0]
+      // Return both keys for compatibility
+      const dateValue = app.programStartDate || app.$updatedAt || app.submittedAt
       return {
-        programStartDate: app.programStartDate || app.$updatedAt || app.submittedAt,
+        startDate: dateValue,
+        programStartDate: dateValue,
         applicationId: app.$id
       }
     }
 
-    return { programStartDate: null }
+    return { startDate: null, programStartDate: null }
   }
   catch (error) {
     console.error('Failed to fetch program start date:', error)
-    return { programStartDate: null }
+    return { startDate: null }
   }
 })

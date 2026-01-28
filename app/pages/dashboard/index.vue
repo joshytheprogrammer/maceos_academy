@@ -273,35 +273,35 @@
 
           <div class="group bg-surface-dark border border-surface-border rounded-2xl p-6 hover:border-primary/50 transition-all">
             <div class="flex items-center justify-between mb-4">
-              <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                <span class="material-symbols-outlined text-primary text-2xl">task_alt</span>
+              <div class="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center group-hover:bg-blue-500/20 transition-colors">
+                <span class="material-symbols-outlined text-blue-400 text-2xl">timer</span>
               </div>
-              <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Progress</span>
+              <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Remaining</span>
             </div>
-            <p class="text-3xl font-bold text-white font-display mb-1">{{ progressPercent }}%</p>
-            <p class="text-text-secondary text-sm">Course completed</p>
+            <p class="text-3xl font-bold text-white font-display mb-1">{{ daysRemaining ?? '—' }}</p>
+            <p class="text-text-secondary text-sm">days until completion</p>
           </div>
 
           <div class="group bg-surface-dark border border-surface-border rounded-2xl p-6 hover:border-primary/50 transition-all">
             <div class="flex items-center justify-between mb-4">
-              <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                <span class="material-symbols-outlined text-primary text-2xl">download</span>
+              <div class="w-12 h-12 bg-amber-500/10 rounded-xl flex items-center justify-center group-hover:bg-amber-500/20 transition-colors">
+                <span class="material-symbols-outlined text-amber-400 text-2xl">description</span>
               </div>
               <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Materials</span>
             </div>
-            <p class="text-3xl font-bold text-white font-display mb-1">{{ downloadedMaterials }}</p>
-            <p class="text-text-secondary text-sm">Files downloaded</p>
+            <p class="text-3xl font-bold text-white font-display mb-1">{{ progress.downloadedMaterials }}/{{ progress.totalMaterials }}</p>
+            <p class="text-text-secondary text-sm">materials completed</p>
           </div>
 
           <div class="group bg-surface-dark border border-surface-border rounded-2xl p-6 hover:border-primary/50 transition-all">
             <div class="flex items-center justify-between mb-4">
-              <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                <span class="material-symbols-outlined text-primary text-2xl">emoji_events</span>
+              <div class="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center group-hover:bg-purple-500/20 transition-colors">
+                <span class="material-symbols-outlined text-purple-400 text-2xl">emoji_events</span>
               </div>
               <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Exams</span>
             </div>
-            <p class="text-3xl font-bold text-white font-display mb-1">{{ completedExams }}/2</p>
-            <p class="text-text-secondary text-sm">Exams completed</p>
+            <p class="text-3xl font-bold text-white font-display mb-1">{{ progress.passedExams }}/{{ progress.totalExams }}</p>
+            <p class="text-text-secondary text-sm">exams passed</p>
           </div>
         </div>
 
@@ -379,7 +379,7 @@
             <!-- Current Week Materials -->
             <div class="bg-surface-dark border border-surface-border rounded-2xl p-6">
               <div class="flex items-center justify-between mb-6">
-                <h3 class="text-xl font-bold text-white font-display">Week {{ currentWeek }} Materials</h3>
+                <h3 class="text-xl font-bold text-white font-display">This Week's Materials</h3>
                 <NuxtLink 
                   to="/dashboard/materials" 
                   class="inline-flex items-center gap-1 text-primary hover:text-primary-light text-sm font-bold transition-colors"
@@ -390,10 +390,11 @@
               </div>
 
               <div class="space-y-3">
-                <div 
+                <NuxtLink 
                   v-for="material in currentMaterials" 
                   :key="material.id"
-                  class="group flex items-center gap-4 p-4 bg-background-dark/50 rounded-xl hover:bg-background-dark border border-transparent hover:border-surface-border transition-all cursor-pointer"
+                  :to="`/dashboard/materials?week=${currentWeek}`"
+                  class="group flex items-center gap-4 p-4 bg-background-dark/50 rounded-xl hover:bg-background-dark border border-transparent hover:border-surface-border transition-all"
                 >
                   <div 
                     class="w-12 h-12 rounded-xl flex items-center justify-center transition-colors"
@@ -403,25 +404,40 @@
                   </div>
                   <div class="flex-1 min-w-0">
                     <p class="font-bold text-white truncate group-hover:text-primary transition-colors">{{ material.title }}</p>
-                    <p class="text-sm text-text-secondary capitalize">{{ material.type }} • {{ material.duration }}</p>
+                    <p class="text-sm text-text-secondary capitalize">{{ material.duration }}</p>
                   </div>
-                  <button class="p-2.5 text-primary bg-primary/10 hover:bg-primary hover:text-background-dark rounded-lg transition-all">
+                  <div class="p-2.5 text-primary bg-primary/10 group-hover:bg-primary group-hover:text-background-dark rounded-lg transition-all">
                     <span class="material-symbols-outlined">{{ material.type === 'video' ? 'play_circle' : 'download' }}</span>
-                  </button>
-                </div>
+                  </div>
+                </NuxtLink>
 
                 <div v-if="currentMaterials.length === 0" class="text-center py-12">
                   <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-surface-border flex items-center justify-center">
                     <span class="material-symbols-outlined text-3xl text-gray-500">folder_open</span>
                   </div>
-                  <p class="text-gray-500">No materials available for this week yet.</p>
+                  <p class="text-gray-500 mb-2">No materials available for Week {{ currentWeek }} yet.</p>
+                  <NuxtLink 
+                    to="/dashboard/materials"
+                    class="text-primary hover:text-primary-light text-sm font-medium"
+                  >
+                    Browse all materials →
+                  </NuxtLink>
                 </div>
               </div>
             </div>
 
             <!-- Upcoming Schedule -->
             <div class="bg-surface-dark border border-surface-border rounded-2xl p-6">
-              <h3 class="text-xl font-bold text-white font-display mb-6">Upcoming Schedule</h3>
+              <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold text-white font-display">What's Coming Up</h3>
+                <NuxtLink 
+                  to="/dashboard/schedule" 
+                  class="inline-flex items-center gap-1 text-primary hover:text-primary-light text-sm font-bold transition-colors"
+                >
+                  Full schedule
+                  <span class="material-symbols-outlined text-lg">arrow_forward</span>
+                </NuxtLink>
+              </div>
               
               <div class="space-y-3">
                 <div 
@@ -447,9 +463,10 @@
 
                 <div v-if="upcomingEvents.length === 0" class="text-center py-12">
                   <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-surface-border flex items-center justify-center">
-                    <span class="material-symbols-outlined text-3xl text-gray-500">event_busy</span>
+                    <span class="material-symbols-outlined text-3xl text-gray-500">event_available</span>
                   </div>
-                  <p class="text-gray-500">No upcoming events scheduled.</p>
+                  <p class="text-gray-500 mb-2">No upcoming events scheduled.</p>
+                  <p class="text-gray-600 text-sm">Keep an eye on announcements!</p>
                 </div>
               </div>
             </div>
@@ -468,52 +485,73 @@
                   <div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary/20 transition-colors">
                     <span class="material-symbols-outlined text-primary">folder</span>
                   </div>
-                  <span class="text-gray-300 font-medium group-hover:text-white transition-colors">Browse Materials</span>
+                  <span class="text-gray-300 font-medium group-hover:text-white transition-colors">Course Materials</span>
+                </NuxtLink>
+                <NuxtLink 
+                  to="/dashboard/schedule"
+                  class="flex items-center gap-3 p-3.5 bg-background-dark hover:bg-surface-darker rounded-xl transition-all group"
+                >
+                  <div class="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center group-hover:bg-blue-500/20 transition-colors">
+                    <span class="material-symbols-outlined text-blue-400">calendar_month</span>
+                  </div>
+                  <span class="text-gray-300 font-medium group-hover:text-white transition-colors">My Schedule</span>
                 </NuxtLink>
                 <NuxtLink 
                   to="/dashboard/exams"
                   class="flex items-center gap-3 p-3.5 bg-background-dark hover:bg-surface-darker rounded-xl transition-all group"
                 >
-                  <div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                    <span class="material-symbols-outlined text-primary">quiz</span>
+                  <div class="w-10 h-10 bg-purple-500/10 rounded-lg flex items-center justify-center group-hover:bg-purple-500/20 transition-colors">
+                    <span class="material-symbols-outlined text-purple-400">quiz</span>
                   </div>
-                  <span class="text-gray-300 font-medium group-hover:text-white transition-colors">View Exams</span>
+                  <span class="text-gray-300 font-medium group-hover:text-white transition-colors">Examinations</span>
                 </NuxtLink>
                 <NuxtLink 
-                  to="/dashboard/support"
+                  to="/dashboard/live-sessions"
                   class="flex items-center gap-3 p-3.5 bg-background-dark hover:bg-surface-darker rounded-xl transition-all group"
                 >
-                  <div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                    <span class="material-symbols-outlined text-primary">support_agent</span>
+                  <div class="w-10 h-10 bg-red-500/10 rounded-lg flex items-center justify-center group-hover:bg-red-500/20 transition-colors">
+                    <span class="material-symbols-outlined text-red-400">videocam</span>
                   </div>
-                  <span class="text-gray-300 font-medium group-hover:text-white transition-colors">Get Support</span>
+                  <span class="text-gray-300 font-medium group-hover:text-white transition-colors">Live Sessions</span>
                 </NuxtLink>
               </div>
             </div>
 
             <!-- Progress Overview -->
             <div class="bg-surface-dark border border-surface-border rounded-2xl p-6">
-              <h3 class="text-lg font-bold text-white font-display mb-5">Course Progress</h3>
-              <div class="space-y-3">
-                <div v-for="week in 10" :key="week" class="flex items-center gap-3">
+              <div class="flex items-center justify-between mb-5">
+                <h3 class="text-lg font-bold text-white font-display">Course Progress</h3>
+                <span class="text-2xl font-bold text-primary">{{ programProgress }}%</span>
+              </div>
+              
+              <!-- Progress Bar -->
+              <div class="mb-6">
+                <div class="h-3 bg-surface-border rounded-full overflow-hidden">
                   <div 
-                    class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all"
-                    :class="week <= currentWeek 
-                      ? 'bg-primary text-background-dark shadow-[0_0_10px_rgba(18,226,105,0.3)]' 
-                      : 'bg-surface-border text-gray-500'"
+                    class="h-full bg-linear-to-r from-primary to-primary/70 rounded-full transition-all duration-500"
+                    :style="{ width: `${programProgress}%` }"
+                  ></div>
+                </div>
+                <p class="text-xs text-text-secondary mt-2">Week {{ currentWeek }} of {{ totalWeeks }}</p>
+              </div>
+              
+              <!-- Week indicators -->
+              <div class="grid grid-cols-5 gap-2">
+                <div 
+                  v-for="week in totalWeeks" 
+                  :key="week" 
+                  class="flex flex-col items-center"
+                >
+                  <div 
+                    class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all mb-1"
+                    :class="week < currentWeek 
+                      ? 'bg-primary text-background-dark' 
+                      : week === currentWeek 
+                        ? 'bg-primary/20 border-2 border-primary text-primary' 
+                        : 'bg-surface-border text-gray-500'"
                   >
-                    <span v-if="week < currentWeek" class="material-symbols-outlined text-lg">check</span>
+                    <span v-if="week < currentWeek" class="material-symbols-outlined text-sm">check</span>
                     <span v-else>{{ week }}</span>
-                  </div>
-                  <div class="flex-1">
-                    <div 
-                      class="h-2 rounded-full transition-all"
-                      :class="week < currentWeek 
-                        ? 'bg-primary' 
-                        : week === currentWeek 
-                          ? 'bg-linear-to-r from-primary to-primary/30' 
-                          : 'bg-surface-border'"
-                    />
                   </div>
                 </div>
               </div>
@@ -638,6 +676,17 @@ const { content, fetchAllContent } = useContent()
 const authInitialized = useState('auth_initialized', () => false)
 const authReady = computed(() => authInitialized.value)
 
+// Use the same schedule composable that works on the schedule page
+const { 
+  loading: scheduleLoading,
+  currentWeek, 
+  totalWeeks,
+  progress, 
+  programProgress,
+  getDaysRemainingInWeek,
+  loadSchedule 
+} = useSchedule()
+
 const showChangePassword = ref(false)
 
 // Password change form
@@ -649,6 +698,61 @@ const passwordForm = ref({
 const isChangingPassword = ref(false)
 const passwordError = ref('')
 const passwordSuccess = ref('')
+
+// Computed: Current week materials from content
+const currentMaterials = computed(() => {
+  return content.value
+    .filter(item => 
+      item.week === currentWeek.value && 
+      item.isPublished && 
+      ['pdf', 'document', 'video'].includes(item.type)
+    )
+    .slice(0, 4)
+    .map(item => ({
+      id: item.$id,
+      title: item.title,
+      type: item.type === 'document' ? 'pdf' : item.type,
+      duration: item.type === 'video' ? 'Video' : 'Document',
+      fileId: item.fileId
+    }))
+})
+
+// Computed: Upcoming events from content (live sessions)
+const upcomingEvents = computed(() => {
+  const events = []
+  const now = new Date()
+  
+  // Add upcoming live sessions
+  const upcomingSessions = content.value
+    .filter(item => 
+      item.type === 'live-link' && 
+      item.isPublished && 
+      item.liveStartTime &&
+      new Date(item.liveStartTime) > now
+    )
+    .slice(0, 4)
+  
+  upcomingSessions.forEach(session => {
+    const date = new Date(session.liveStartTime)
+    events.push({
+      id: session.$id,
+      title: session.title,
+      day: date.getDate().toString().padStart(2, '0'),
+      month: date.toLocaleDateString('en-US', { month: 'short' }),
+      time: date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }) + ' WAT',
+      type: 'Live'
+    })
+  })
+
+  return events.slice(0, 4)
+})
+
+// Days until program ends (use getDaysRemainingInWeek from schedule for now)
+const daysRemaining = computed(() => {
+  // Total remaining = (10 - currentWeek) * 7 + days remaining in current week
+  const weeksLeft = totalWeeks.value - currentWeek.value
+  return weeksLeft * 7 + getDaysRemainingInWeek.value
+})
 
 // Live sessions computed
 const liveSessions = computed(() => {
@@ -736,22 +840,7 @@ const handleChangePassword = async () => {
 }
 
 // Mock data - replace with real data from Appwrite later
-const currentWeek = ref(3)
-const progressPercent = ref(30)
-const downloadedMaterials = ref(12)
-const completedExams = ref(1)
-
-const currentMaterials = ref([
-  { id: 1, title: 'Introduction to Marine Operations', type: 'pdf', duration: '15 pages' },
-  { id: 2, title: 'Safety Protocols Overview', type: 'video', duration: '45 min' },
-  { id: 3, title: 'Week 3 Study Guide', type: 'pdf', duration: '8 pages' },
-])
-
-const upcomingEvents = ref([
-  { id: 1, title: 'Live Q&A Session', day: '28', month: 'Jan', time: '2:00 PM WAT', type: 'Live' },
-  { id: 2, title: 'Week 4 Materials Release', day: '02', month: 'Feb', time: '9:00 AM WAT', type: 'Content' },
-  { id: 3, title: 'Mid-Course Exam', day: '10', month: 'Feb', time: '10:00 AM WAT', type: 'Exam' },
-])
+// Data is now fetched dynamically above
 
 // Computed
 const userInitials = computed(() => {
@@ -809,9 +898,11 @@ onMounted(() => {
   // Fetch user's application status
   if (user.value) {
     fetchApplication(user.value.$id)
+    // Load schedule data (same as schedule page)
+    loadSchedule(user.value.$id)
   }
   
-  // Fetch all content for live sessions widget
+  // Fetch all content for live sessions widget and materials
   fetchAllContent()
   
   // Auto-refresh every minute to update live session statuses
