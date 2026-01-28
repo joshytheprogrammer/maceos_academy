@@ -79,6 +79,16 @@
               Exams
             </NuxtLink>
           </li>
+          <li>
+            <NuxtLink 
+              to="/admin/support" 
+              class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors"
+              :class="route.path.startsWith('/admin/support') ? 'bg-green-500/10 text-green-400' : 'text-gray-400 hover:bg-gray-800 hover:text-white'"
+            >
+              <span class="material-symbols-outlined text-[20px]">support_agent</span>
+              Support
+            </NuxtLink>
+          </li>
         </ul>
 
         <!-- Divider -->
