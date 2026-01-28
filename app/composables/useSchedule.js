@@ -66,17 +66,23 @@ export const useSchedule = () => {
   })
 
   /**
-   * Get program progress percentage
+   * Get program progress percentage (based on completed items, not time)
    */
   const programProgress = computed(() => {
-    if (!programStartDate.value) return 0
+    // Calculate based on actual completion across all weeks
+    const allWeeks = weeklySchedule.value
+    if (!allWeeks.length) return 0
     
-    const start = new Date(programStartDate.value)
-    const now = new Date()
-    const totalDays = totalWeeks.value * 7
-    const elapsedDays = Math.floor((now - start) / (1000 * 60 * 60 * 24))
+    let totalItems = 0
+    let completedItems = 0
     
-    return Math.min(100, Math.round((elapsedDays / totalDays) * 100))
+    allWeeks.forEach(week => {
+      totalItems += week.totalItems || 0
+      completedItems += week.completedItems || 0
+    })
+    
+    if (totalItems === 0) return 0
+    return Math.round((completedItems / totalItems) * 100)
   })
 
   /**
@@ -99,21 +105,11 @@ export const useSchedule = () => {
    */
   const loadProgramStartDate = async (userId) => {
     try {
-      const response = await databases.listDocuments(
-        DB_ID,
-        'applications',
-        [
-          Query.equal('userId', userId),
-          Query.equal('status', 'approved'),
-          Query.limit(1)
-        ]
-      )
+      // Use server API to bypass permission issues
+      const result = await $fetch(`/api/applications/${userId}/start-date`)
       
-      if (response.documents.length > 0) {
-        const app = response.documents[0]
-        // Use programStartDate if set, otherwise use approval date ($updatedAt when approved)
-        // If neither, use submittedAt as fallback
-        programStartDate.value = app.programStartDate || app.$updatedAt || app.submittedAt
+      if (result.programStartDate) {
+        programStartDate.value = result.programStartDate
         currentWeek.value = calculateCurrentWeek(programStartDate.value)
       }
     }
