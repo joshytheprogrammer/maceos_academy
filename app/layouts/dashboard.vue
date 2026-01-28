@@ -94,10 +94,12 @@
           <li>
             <button 
               @click="handleLogout"
-              class="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-gray-400 transition-all hover:bg-red-500/10 hover:text-red-400"
+              :disabled="isLoggingOut"
+              class="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-gray-400 transition-all hover:bg-red-500/10 hover:text-red-400 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <span class="material-symbols-outlined text-xl">logout</span>
-              Sign Out
+              <span v-if="isLoggingOut" class="material-symbols-outlined text-xl animate-spin">progress_activity</span>
+              <span v-else class="material-symbols-outlined text-xl">logout</span>
+              {{ isLoggingOut ? 'Signing Out...' : 'Sign Out' }}
             </button>
           </li>
         </ul>
@@ -239,7 +241,10 @@ const userInitials = computed(() => {
 })
 
 // Logout handler
+const isLoggingOut = ref(false)
 const handleLogout = async () => {
+  if (isLoggingOut.value) return
+  isLoggingOut.value = true
   await logout()
   navigateTo('/login')
 }

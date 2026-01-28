@@ -99,10 +99,12 @@
           <li>
             <button 
               @click="handleLogout"
-              class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-400 transition-colors hover:bg-red-500/10 hover:text-red-400"
+              :disabled="isLoggingOut"
+              class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-400 transition-colors hover:bg-red-500/10 hover:text-red-400 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <span class="material-symbols-outlined text-[20px]">logout</span>
-              Logout
+              <span v-if="isLoggingOut" class="material-symbols-outlined text-[20px] animate-spin">progress_activity</span>
+              <span v-else class="material-symbols-outlined text-[20px]">logout</span>
+              {{ isLoggingOut ? 'Logging Out...' : 'Logout' }}
             </button>
           </li>
         </ul>
@@ -163,7 +165,10 @@ const userInitials = computed(() => {
 // Pending applications count (will be populated)
 const pendingCount = useState('admin_pending_count', () => 0)
 
+const isLoggingOut = ref(false)
 const handleLogout = async () => {
+  if (isLoggingOut.value) return
+  isLoggingOut.value = true
   await logout()
   navigateTo('/')
 }
