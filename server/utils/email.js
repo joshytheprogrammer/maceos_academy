@@ -175,7 +175,7 @@ export const emailTemplates = {
               
               <!-- CTA Button -->
               <div style="text-align: center; margin: 30px 0;">
-                <a href="https://academy.maceos.com/login" style="display: inline-block; background-color: #22c55e; color: #0a0a0a; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 16px;">
+                <a href="https://academy.autohub.africa/login" style="display: inline-block; background-color: #22c55e; color: #0a0a0a; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 16px;">
                   Login to Dashboard
                 </a>
               </div>
@@ -229,7 +229,7 @@ WHAT'S NEXT
 - You'll receive an email with the decision
 - If accepted, you'll get full access to course materials
 
-Login at: https://academy.maceos.com/login
+Login at: https://academy.autohub.africa/login
 
 Questions? Contact us at support@maceos.academy
 
@@ -285,7 +285,7 @@ Questions? Contact us at support@maceos.academy
               
               <!-- CTA Button -->
               <div style="text-align: center; margin: 30px 0;">
-                <a href="https://academy.maceos.com/dashboard" style="display: inline-block; background-color: #22c55e; color: #0a0a0a; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 16px;">
+                <a href="https://academy.autohub.africa/dashboard" style="display: inline-block; background-color: #22c55e; color: #0a0a0a; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 16px;">
                   Go to Dashboard
                 </a>
               </div>
@@ -314,7 +314,7 @@ Your application to MACEOS Academy has been APPROVED!
 
 You now have full access to all course materials.
 
-Login at: https://academy.maceos.com/dashboard
+Login at: https://academy.autohub.africa/dashboard
 
 © ${new Date().getFullYear()} MACEOS Academy
     `,
