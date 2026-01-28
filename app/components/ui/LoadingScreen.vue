@@ -1,7 +1,7 @@
 <template>
-  <div class="fixed inset-0 z-[9999] flex items-center justify-center bg-gray-950">
+  <div class="fixed inset-0 z-9999 flex items-center justify-center bg-gray-950">
     <!-- Animated background gradient -->
-    <div class="absolute inset-0 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950"></div>
+    <div class="absolute inset-0 bg-linear-to-br from-gray-950 via-gray-900 to-gray-950"></div>
     
     <!-- Subtle grid pattern -->
     <div class="absolute inset-0 opacity-5">

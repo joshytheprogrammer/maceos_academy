@@ -1,7 +1,23 @@
 <template>
   <div class="min-h-screen bg-gray-950">
+    <!-- Mobile Menu Button -->
+    <button 
+      v-if="showMobileMenu"
+      @click="mobileMenuOpen = !mobileMenuOpen"
+      class="fixed top-4 left-4 z-50 md:hidden p-2 rounded-lg bg-gray-800 text-gray-300 hover:text-white transition-colors"
+    >
+      <span class="material-symbols-outlined">{{ mobileMenuOpen ? 'close' : 'menu' }}</span>
+    </button>
+
     <!-- Admin Sidebar -->
-    <aside class="fixed left-0 top-0 z-40 h-screen w-64 border-r border-gray-800 bg-gray-900">
+    <aside 
+      :class="[
+        'fixed left-0 top-0 z-40 h-screen w-64 border-r border-gray-800 bg-gray-900',
+        'transition-transform duration-300 ease-in-out',
+        'md:translate-x-0',
+        mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+      ]"
+    >
       <!-- Logo -->
       <div class="flex h-16 items-center border-b border-gray-800 px-6">
         <NuxtLink to="/admin" class="flex items-center gap-2">
@@ -112,14 +128,22 @@
     </aside>
 
     <!-- Main Content -->
-    <div class="pl-64">
+    <div class="md:pl-64">
       <!-- Top Bar -->
-      <header class="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-gray-800 bg-gray-950/80 px-6 backdrop-blur-sm">
+      <header class="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-gray-800 bg-gray-950/80 px-4 md:px-6 backdrop-blur-sm">
+        <!-- Mobile Menu Button -->
+        <button 
+          @click="mobileMenuOpen = !mobileMenuOpen"
+          class="md:hidden p-2 text-gray-300 hover:text-white transition-colors"
+        >
+          <span class="material-symbols-outlined">{{ mobileMenuOpen ? 'close' : 'menu' }}</span>
+        </button>
+        
         <h2 class="text-lg font-semibold text-white">{{ pageTitle }}</h2>
         
         <div class="flex items-center gap-4">
           <!-- User Info -->
-          <div class="flex items-center gap-3">
+          <div class="hidden sm:flex items-center gap-3">
             <div class="h-8 w-8 rounded-full bg-green-500/20 flex items-center justify-center">
               <span class="text-sm font-medium text-green-400">{{ userInitials }}</span>
             </div>
@@ -132,16 +156,41 @@
       </header>
 
       <!-- Page Content -->
-      <main class="p-6">
+      <main class="p-4 md:p-6 lg:p-8">
         <slot />
       </main>
     </div>
+
+    <!-- Mobile Overlay -->
+    <div 
+      v-if="mobileMenuOpen" 
+      @click="mobileMenuOpen = false"
+      class="fixed inset-0 z-30 bg-black/50 md:hidden"
+    ></div>
   </div>
 </template>
 
 <script setup>
 const route = useRoute()
 const { user, logout } = useAuth()
+const mobileMenuOpen = ref(false)
+const showMobileMenu = ref(false)
+
+// Show mobile menu button on mount and window resize
+onMounted(() => {
+  showMobileMenu.value = window.innerWidth < 768
+  window.addEventListener('resize', () => {
+    showMobileMenu.value = window.innerWidth < 768
+    if (window.innerWidth >= 768) {
+      mobileMenuOpen.value = false
+    }
+  })
+})
+
+// Close menu when route changes
+watch(() => route.path, () => {
+  mobileMenuOpen.value = false
+})
 
 // Page title based on route
 const pageTitle = computed(() => {

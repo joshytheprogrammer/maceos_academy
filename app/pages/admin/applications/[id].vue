@@ -1,98 +1,98 @@
 <template>
   <UiLoadingScreen v-if="!authReady || loading" message="Loading application..." />
   
-  <div v-else-if="!application" class="flex flex-col items-center justify-center py-20">
-    <span class="material-symbols-outlined mb-4 text-6xl text-gray-600">error</span>
-    <h2 class="text-xl font-semibold text-white">Application Not Found</h2>
-    <p class="mt-2 text-gray-400">The application you're looking for doesn't exist.</p>
-    <NuxtLink to="/admin/applications" class="mt-6 rounded-lg bg-green-500 px-4 py-2 text-sm font-medium text-white hover:bg-green-600">
+  <div v-else-if="!application" class="flex flex-col items-center justify-center py-12 sm:py-20">
+    <span class="material-symbols-outlined mb-4 text-5xl sm:text-6xl text-gray-600">error</span>
+    <h2 class="text-lg sm:text-xl font-semibold text-white">Application Not Found</h2>
+    <p class="mt-2 text-xs sm:text-sm text-gray-400">The application you're looking for doesn't exist.</p>
+    <NuxtLink to="/admin/applications" class="mt-6 rounded-lg bg-green-500 px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white hover:bg-green-600">
       Back to Applications
     </NuxtLink>
   </div>
   
   <div v-else>
     <!-- Back Link -->
-    <NuxtLink to="/admin/applications" class="inline-flex items-center gap-1 text-sm text-gray-400 hover:text-white mb-6">
-      <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+    <NuxtLink to="/admin/applications" class="inline-flex items-center gap-1 text-xs sm:text-sm text-gray-400 hover:text-white mb-4 sm:mb-6">
+      <span class="material-symbols-outlined text-[16px] sm:text-[18px]">arrow_back</span>
       Back to Applications
     </NuxtLink>
 
     <!-- Header -->
     <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-      <div class="flex items-start gap-4">
-        <div class="h-16 w-16 rounded-full bg-gray-800 flex items-center justify-center">
-          <span class="text-2xl font-medium text-gray-400">{{ getInitials(application.fullName) }}</span>
+      <div class="flex items-start gap-3 sm:gap-4">
+        <div class="h-12 w-12 sm:h-16 sm:w-16 rounded-full bg-gray-800 flex items-center justify-center flex-shrink-0">
+          <span class="text-lg sm:text-2xl font-medium text-gray-400">{{ getInitials(application.fullName) }}</span>
         </div>
-        <div>
-          <h1 class="text-2xl font-bold text-white">{{ application.fullName }}</h1>
-          <p class="text-gray-400">{{ application.email }}</p>
-          <div class="mt-2 flex flex-wrap gap-2">
-            <span :class="getStatusBadgeClass(application.status)" class="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium capitalize">
+        <div class="min-w-0">
+          <h1 class="text-lg sm:text-2xl font-bold text-white truncate">{{ application.fullName }}</h1>
+          <p class="text-xs sm:text-sm text-gray-400 truncate">{{ application.email }}</p>
+          <div class="mt-2 flex flex-wrap gap-1 sm:gap-2">
+            <span :class="getStatusBadgeClass(application.status)" class="inline-flex items-center rounded-full px-2 sm:px-3 py-0.5 sm:py-1 text-xs font-medium capitalize">
               {{ application.status }}
             </span>
-            <span :class="getPaymentBadgeClass(application.paymentVerified)" class="inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-medium">
+            <span :class="getPaymentBadgeClass(application.paymentVerified)" class="inline-flex items-center gap-1 rounded-full px-2 sm:px-3 py-0.5 sm:py-1 text-xs font-medium">
               <span class="material-symbols-outlined text-[14px]">{{ application.paymentVerified ? 'check_circle' : 'schedule' }}</span>
-              {{ application.paymentVerified ? 'Verified' : 'Payment Pending' }}
+              {{ application.paymentVerified ? 'Verified' : 'Pending' }}
             </span>
           </div>
         </div>
       </div>
 
       <!-- Action Buttons -->
-      <div class="flex gap-3">
+      <div class="flex gap-2 sm:gap-3 flex-wrap">
         <button 
           v-if="application.status === 'pending'"
           @click="showRejectModal = true"
-          class="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-400 transition-colors hover:bg-red-500/20"
+          class="rounded-lg border border-red-500/30 bg-red-500/10 px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-red-400 transition-colors hover:bg-red-500/20"
         >
-          <span class="material-symbols-outlined mr-1 align-middle text-[18px]">close</span>
+          <span class="material-symbols-outlined mr-1 align-middle text-[16px] sm:text-[18px]">close</span>
           Reject
         </button>
         <button 
           v-if="application.status === 'pending' && application.paymentVerified"
           @click="showApproveModal = true"
-          class="rounded-lg bg-green-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-600"
+          class="rounded-lg bg-green-500 px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white transition-colors hover:bg-green-600"
         >
-          <span class="material-symbols-outlined mr-1 align-middle text-[18px]">check</span>
-          Approve Application
+          <span class="material-symbols-outlined mr-1 align-middle text-[16px] sm:text-[18px]">check</span>
+          Approve
         </button>
-        <span v-if="application.status === 'approved'" class="rounded-lg bg-green-500/20 px-4 py-2 text-sm font-medium text-green-400">
+        <span v-if="application.status === 'approved'" class="rounded-lg bg-green-500/20 px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-green-400">
           ✓ Approved
         </span>
       </div>
     </div>
 
     <!-- Content Grid -->
-    <div class="mt-8 grid gap-6 lg:grid-cols-3">
+    <div class="mt-6 sm:mt-8 grid gap-4 sm:gap-6 lg:grid-cols-3">
       <!-- Main Info -->
-      <div class="lg:col-span-2 space-y-6">
+      <div class="lg:col-span-2 space-y-4 sm:space-y-6">
         <!-- Personal Information -->
-        <div class="rounded-xl border border-gray-800 bg-gray-900 p-6">
-          <h3 class="text-lg font-semibold text-white mb-4">Personal Information</h3>
-          <div class="grid gap-4 sm:grid-cols-2">
+        <div class="rounded-xl border border-gray-800 bg-gray-900 p-4 sm:p-6">
+          <h3 class="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4">Personal Information</h3>
+          <div class="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2">
             <div>
-              <p class="text-sm text-gray-500">Full Name</p>
-              <p class="mt-1 text-white">{{ application.fullName }}</p>
+              <p class="text-xs sm:text-sm text-gray-500">Full Name</p>
+              <p class="mt-1 text-xs sm:text-sm text-white">{{ application.fullName }}</p>
             </div>
             <div>
-              <p class="text-sm text-gray-500">Email</p>
-              <p class="mt-1 text-white">{{ application.email }}</p>
+              <p class="text-xs sm:text-sm text-gray-500">Email</p>
+              <p class="mt-1 text-xs sm:text-sm text-white truncate">{{ application.email }}</p>
             </div>
             <div>
-              <p class="text-sm text-gray-500">Phone</p>
-              <p class="mt-1 text-white">{{ application.phone || 'Not provided' }}</p>
+              <p class="text-xs sm:text-sm text-gray-500">Phone</p>
+              <p class="mt-1 text-xs sm:text-sm text-white">{{ application.phone || 'Not provided' }}</p>
             </div>
             <div>
-              <p class="text-sm text-gray-500">Country</p>
-              <p class="mt-1 text-white">{{ application.country || 'Not provided' }}</p>
+              <p class="text-xs sm:text-sm text-gray-500">Country</p>
+              <p class="mt-1 text-xs sm:text-sm text-white">{{ application.country || 'Not provided' }}</p>
             </div>
             <div>
-              <p class="text-sm text-gray-500">Date of Birth</p>
-              <p class="mt-1 text-white">{{ application.dateOfBirth ? formatDate(application.dateOfBirth) : 'Not provided' }}</p>
+              <p class="text-xs sm:text-sm text-gray-500">Date of Birth</p>
+              <p class="mt-1 text-xs sm:text-sm text-white">{{ application.dateOfBirth ? formatDate(application.dateOfBirth) : 'Not provided' }}</p>
             </div>
             <div>
-              <p class="text-sm text-gray-500">Years of Experience</p>
-              <p class="mt-1 text-white">{{ application.yearsOfExperience || 'Not provided' }}</p>
+              <p class="text-xs sm:text-sm text-gray-500">Years of Experience</p>
+              <p class="mt-1 text-xs sm:text-sm text-white">{{ application.yearsOfExperience || 'Not provided' }}</p>
             </div>
           </div>
         </div>

@@ -5,14 +5,14 @@
     <!-- Page Header -->
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
-        <h1 class="text-2xl font-bold text-white">Payments</h1>
-        <p class="mt-1 text-gray-400">View all payment transactions</p>
+        <h1 class="text-xl sm:text-2xl font-bold text-white">Payments</h1>
+        <p class="mt-1 text-xs sm:text-sm text-gray-400">View all payment transactions</p>
       </div>
       
       <!-- Filter -->
       <select 
         v-model="statusFilter" 
-        class="rounded-lg border border-gray-700 bg-gray-800 px-4 py-2 text-sm text-white focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+        class="rounded-lg border border-gray-700 bg-gray-800 px-3 sm:px-4 py-2 text-xs sm:text-sm text-white focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
       >
         <option value="all">All Payments</option>
         <option value="true">Verified</option>
@@ -21,62 +21,62 @@
     </div>
 
     <!-- Stats -->
-    <div class="mt-6 grid gap-4 sm:grid-cols-3">
-      <div class="rounded-xl border border-gray-800 bg-gray-900 p-4">
-        <p class="text-sm text-gray-400">Total Collected</p>
-        <p class="mt-1 text-2xl font-bold text-white">₦{{ formatCurrency(stats.totalRevenue) }}</p>
+    <div class="mt-6 grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-3">
+      <div class="rounded-xl border border-gray-800 bg-gray-900 p-3 sm:p-4">
+        <p class="text-xs sm:text-sm text-gray-400">Total Collected</p>
+        <p class="mt-1 text-xl sm:text-2xl font-bold text-white break-words">₦{{ formatCurrency(stats.totalRevenue) }}</p>
       </div>
-      <div class="rounded-xl border border-gray-800 bg-gray-900 p-4">
-        <p class="text-sm text-gray-400">Successful Payments</p>
-        <p class="mt-1 text-2xl font-bold text-green-400">{{ stats.successful }}</p>
+      <div class="rounded-xl border border-gray-800 bg-gray-900 p-3 sm:p-4">
+        <p class="text-xs sm:text-sm text-gray-400">Successful Payments</p>
+        <p class="mt-1 text-xl sm:text-2xl font-bold text-green-400">{{ stats.successful }}</p>
       </div>
-      <div class="rounded-xl border border-gray-800 bg-gray-900 p-4">
-        <p class="text-sm text-gray-400">This Month</p>
-        <p class="mt-1 text-2xl font-bold text-blue-400">₦{{ formatCurrency(stats.thisMonth) }}</p>
+      <div class="rounded-xl border border-gray-800 bg-gray-900 p-3 sm:p-4">
+        <p class="text-xs sm:text-sm text-gray-400">This Month</p>
+        <p class="mt-1 text-xl sm:text-2xl font-bold text-blue-400 break-words">₦{{ formatCurrency(stats.thisMonth) }}</p>
       </div>
     </div>
 
     <!-- Payments Table -->
-    <div class="mt-6 overflow-hidden rounded-xl border border-gray-800 bg-gray-900">
+    <div class="mt-6 rounded-xl border border-gray-800 bg-gray-900 overflow-x-auto">
       <div v-if="loading" class="flex items-center justify-center py-12">
         <div class="h-8 w-8 animate-spin rounded-full border-2 border-gray-600 border-t-green-500"></div>
       </div>
 
-      <table v-else class="w-full">
+      <table v-else class="w-full min-w-max">
         <thead class="border-b border-gray-800 bg-gray-900/50">
           <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">Reference</th>
-            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">Customer</th>
-            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">Amount</th>
-            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">Status</th>
-            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">Channel</th>
-            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">Date</th>
+            <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">Reference</th>
+            <th class="hidden sm:table-cell px-3 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">Customer</th>
+            <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">Amount</th>
+            <th class="hidden md:table-cell px-3 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">Status</th>
+            <th class="hidden lg:table-cell px-3 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">Channel</th>
+            <th class="hidden md:table-cell px-3 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">Date</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-800">
           <tr v-for="payment in filteredPayments" :key="payment.$id" class="hover:bg-gray-800/50 transition-colors">
-            <td class="whitespace-nowrap px-6 py-4">
-              <p class="font-mono text-sm text-gray-300">{{ payment.reference }}</p>
+            <td class="px-3 sm:px-6 py-4">
+              <p class="font-mono text-xs sm:text-sm text-gray-300">{{ payment.reference }}</p>
             </td>
-            <td class="whitespace-nowrap px-6 py-4">
-              <p class="text-sm text-white">{{ payment.customerEmail || 'N/A' }}</p>
+            <td class="hidden sm:table-cell px-3 sm:px-6 py-4">
+              <p class="text-xs sm:text-sm text-white truncate">{{ payment.customerEmail || 'N/A' }}</p>
             </td>
-            <td class="whitespace-nowrap px-6 py-4">
-              <p class="font-medium text-white">₦{{ formatCurrency(payment.amount) }}</p>
+            <td class="px-3 sm:px-6 py-4">
+              <p class="font-medium text-white text-xs sm:text-sm">₦{{ formatCurrency(payment.amount) }}</p>
             </td>
-            <td class="whitespace-nowrap px-6 py-4">
-              <span :class="getStatusBadgeClass(payment.verified)" class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium">
+            <td class="hidden md:table-cell px-3 sm:px-6 py-4">
+              <span :class="getStatusBadgeClass(payment.verified)" class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium">
                 <span class="material-symbols-outlined text-[14px]">{{ payment.verified ? 'check_circle' : 'schedule' }}</span>
                 {{ payment.verified ? 'Verified' : 'Unverified' }}
               </span>
             </td>
-            <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-400 capitalize">{{ payment.gateway || 'N/A' }}</td>
-            <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-400">{{ formatDate(payment.paidAt || payment.$createdAt) }}</td>
+            <td class="hidden lg:table-cell px-3 sm:px-6 py-4 text-xs sm:text-sm text-gray-400 capitalize">{{ payment.gateway || 'N/A' }}</td>
+            <td class="hidden md:table-cell px-3 sm:px-6 py-4 text-xs sm:text-sm text-gray-400">{{ formatDate(payment.paidAt || payment.$createdAt) }}</td>
           </tr>
           <tr v-if="filteredPayments.length === 0 && !loading">
-            <td colspan="6" class="px-6 py-12 text-center text-gray-500">
-              <span class="material-symbols-outlined mb-2 text-4xl text-gray-600">payments</span>
-              <p>No payments found</p>
+            <td colspan="6" class="px-3 sm:px-6 py-12 text-center text-gray-500">
+              <span class="material-symbols-outlined mb-2 text-3xl sm:text-4xl text-gray-600">payments</span>
+              <p class="text-xs sm:text-sm">No payments found</p>
             </td>
           </tr>
         </tbody>

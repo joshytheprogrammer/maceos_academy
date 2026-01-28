@@ -5,15 +5,15 @@
     <!-- Page Header -->
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
-        <h1 class="text-2xl font-bold text-white">Applications</h1>
-        <p class="mt-1 text-gray-400">Review and manage student applications</p>
+        <h1 class="text-xl sm:text-2xl font-bold text-white">Applications</h1>
+        <p class="mt-1 text-xs sm:text-sm text-gray-400">Review and manage student applications</p>
       </div>
       
       <!-- Filters -->
-      <div class="flex gap-2">
+      <div class="flex gap-2 flex-wrap">
         <select 
           v-model="statusFilter" 
-          class="rounded-lg border border-gray-700 bg-gray-800 px-4 py-2 text-sm text-white focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+          class="rounded-lg border border-gray-700 bg-gray-800 px-3 sm:px-4 py-2 text-xs sm:text-sm text-white focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
         >
           <option value="all">All Status</option>
           <option value="pending">Pending</option>
@@ -23,7 +23,7 @@
         
         <select 
           v-model="paymentFilter" 
-          class="rounded-lg border border-gray-700 bg-gray-800 px-4 py-2 text-sm text-white focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+          class="rounded-lg border border-gray-700 bg-gray-800 px-3 sm:px-4 py-2 text-xs sm:text-sm text-white focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
         >
           <option value="all">All Payments</option>
           <option value="pending">Payment Pending</option>
@@ -33,98 +33,98 @@
     </div>
 
     <!-- Stats Pills -->
-    <div class="mt-6 flex flex-wrap gap-3">
+    <div class="mt-6 flex flex-wrap gap-2">
       <button 
         @click="statusFilter = 'all'; paymentFilter = 'all'"
         :class="statusFilter === 'all' && paymentFilter === 'all' ? 'bg-green-500 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'"
-        class="rounded-full px-4 py-1.5 text-sm font-medium transition-colors"
+        class="rounded-full px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-medium transition-colors"
       >
         All ({{ stats.total }})
       </button>
       <button 
         @click="statusFilter = 'pending'; paymentFilter = 'all'"
         :class="statusFilter === 'pending' ? 'bg-amber-500 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'"
-        class="rounded-full px-4 py-1.5 text-sm font-medium transition-colors"
+        class="rounded-full px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-medium transition-colors"
       >
-        Pending Review ({{ stats.pending }})
+        Pending ({{ stats.pending }})
       </button>
       <button 
         @click="statusFilter = 'all'; paymentFilter = 'verified'"
         :class="paymentFilter === 'verified' ? 'bg-blue-500 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'"
-        class="rounded-full px-4 py-1.5 text-sm font-medium transition-colors"
+        class="rounded-full px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-medium transition-colors"
       >
-        Verified Payment ({{ stats.verified }})
+        Verified ({{ stats.verified }})
       </button>
       <button 
         @click="statusFilter = 'approved'"
         :class="statusFilter === 'approved' ? 'bg-green-500 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'"
-        class="rounded-full px-4 py-1.5 text-sm font-medium transition-colors"
+        class="rounded-full px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-medium transition-colors"
       >
         Approved ({{ stats.approved }})
       </button>
     </div>
 
     <!-- Applications Table -->
-    <div class="mt-6 overflow-hidden rounded-xl border border-gray-800 bg-gray-900">
+    <div class="mt-6 rounded-xl border border-gray-800 bg-gray-900 overflow-x-auto">
       <!-- Loading State -->
       <div v-if="loading" class="flex items-center justify-center py-12">
         <div class="h-8 w-8 animate-spin rounded-full border-2 border-gray-600 border-t-green-500"></div>
       </div>
 
-      <table v-else class="w-full">
+      <table v-else class="w-full min-w-max">
         <thead class="border-b border-gray-800 bg-gray-900/50">
           <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">Applicant</th>
-            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">Program</th>
-            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">Payment</th>
-            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">Status</th>
-            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">Submitted</th>
-            <th class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-400">Actions</th>
+            <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">Applicant</th>
+            <th class="hidden sm:table-cell px-3 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">Program</th>
+            <th class="hidden md:table-cell px-3 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">Payment</th>
+            <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">Status</th>
+            <th class="hidden lg:table-cell px-3 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">Submitted</th>
+            <th class="px-3 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-400">Actions</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-800">
           <tr v-for="app in filteredApplications" :key="app.$id" class="hover:bg-gray-800/50 transition-colors">
-            <td class="whitespace-nowrap px-6 py-4">
-              <div class="flex items-center gap-3">
-                <div class="h-10 w-10 rounded-full bg-gray-800 flex items-center justify-center">
-                  <span class="text-sm font-medium text-gray-400">{{ getInitials(app.fullName) }}</span>
+            <td class="px-3 sm:px-6 py-4">
+              <div class="flex items-center gap-2 sm:gap-3">
+                <div class="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-gray-800 flex items-center justify-center flex-shrink-0">
+                  <span class="text-xs sm:text-sm font-medium text-gray-400">{{ getInitials(app.fullName) }}</span>
                 </div>
-                <div>
-                  <p class="font-medium text-white">{{ app.fullName }}</p>
-                  <p class="text-sm text-gray-500">{{ app.email }}</p>
+                <div class="min-w-0">
+                  <p class="font-medium text-white text-xs sm:text-sm truncate">{{ app.fullName }}</p>
+                  <p class="text-xs text-gray-500 truncate">{{ app.email }}</p>
                 </div>
               </div>
             </td>
-            <td class="whitespace-nowrap px-6 py-4">
-              <p class="text-sm text-gray-300">{{ app.fieldOfStudy || 'Not selected' }}</p>
+            <td class="hidden sm:table-cell px-3 sm:px-6 py-4">
+              <p class="text-xs sm:text-sm text-gray-300">{{ app.fieldOfStudy || 'Not selected' }}</p>
               <p class="text-xs text-gray-500">{{ app.country || 'Unknown' }}</p>
             </td>
-            <td class="whitespace-nowrap px-6 py-4">
-              <span :class="getPaymentBadgeClass(app.paymentVerified)" class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium">
+            <td class="hidden md:table-cell px-3 sm:px-6 py-4">
+              <span :class="getPaymentBadgeClass(app.paymentVerified)" class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium">
                 <span class="material-symbols-outlined text-[14px]">{{ app.paymentVerified ? 'check_circle' : 'schedule' }}</span>
                 {{ app.paymentVerified ? 'Verified' : 'Pending' }}
               </span>
             </td>
-            <td class="whitespace-nowrap px-6 py-4">
-              <span :class="getStatusBadgeClass(app.status)" class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize">
+            <td class="px-3 sm:px-6 py-4">
+              <span :class="getStatusBadgeClass(app.status)" class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium capitalize">
                 {{ app.status }}
               </span>
             </td>
-            <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-400">
+            <td class="hidden lg:table-cell px-3 sm:px-6 py-4 text-xs sm:text-sm text-gray-400">
               {{ formatDate(app.submittedAt || app.$createdAt) }}
             </td>
-            <td class="whitespace-nowrap px-6 py-4 text-right">
+            <td class="px-3 sm:px-6 py-4 text-right">
               <div class="flex items-center justify-end gap-2">
                 <NuxtLink 
                   :to="`/admin/applications/${app.$id}`" 
-                  class="rounded-lg bg-gray-800 px-3 py-1.5 text-sm font-medium text-gray-300 transition-colors hover:bg-gray-700"
+                  class="rounded-lg bg-gray-800 px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-medium text-gray-300 transition-colors hover:bg-gray-700 whitespace-nowrap"
                 >
                   View
                 </NuxtLink>
                 <button 
                   v-if="app.status === 'pending' && app.paymentVerified"
                   @click="quickApprove(app)"
-                  class="rounded-lg bg-green-500/20 px-3 py-1.5 text-sm font-medium text-green-400 transition-colors hover:bg-green-500/30"
+                  class="rounded-lg bg-green-500/20 px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-medium text-green-400 transition-colors hover:bg-green-500/30 whitespace-nowrap hidden sm:block"
                 >
                   Approve
                 </button>
@@ -132,9 +132,9 @@
             </td>
           </tr>
           <tr v-if="filteredApplications.length === 0 && !loading">
-            <td colspan="6" class="px-6 py-12 text-center text-gray-500">
-              <span class="material-symbols-outlined mb-2 text-4xl text-gray-600">folder_open</span>
-              <p>No applications found</p>
+            <td colspan="6" class="px-3 sm:px-6 py-12 text-center text-gray-500">
+              <span class="material-symbols-outlined mb-2 text-3xl sm:text-4xl text-gray-600">folder_open</span>
+              <p class="text-xs sm:text-sm">No applications found</p>
             </td>
           </tr>
         </tbody>
@@ -142,8 +142,8 @@
     </div>
 
     <!-- Pagination -->
-    <div v-if="totalPages > 1" class="mt-4 flex items-center justify-between">
-      <p class="text-sm text-gray-400">
+    <div v-if="totalPages > 1" class="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <p class="text-xs sm:text-sm text-gray-400">
         Showing {{ (currentPage - 1) * pageSize + 1 }} to {{ Math.min(currentPage * pageSize, totalApplications) }} of {{ totalApplications }} applications
       </p>
       <div class="flex gap-2">

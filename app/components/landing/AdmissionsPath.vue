@@ -80,7 +80,7 @@ const steps = [
           <p class="text-text-secondary mb-8 font-body text-sm leading-relaxed max-w-xl mx-auto">
             Excellence requires integrity. We accept only those committed to reshaping the industry with ethical leadership and unwavering dedication. By applying, you agree to uphold the MACEOS standard.
           </p>
-          <NuxtLink to="/apply" class="inline-block w-full sm:w-auto min-w-50 h-12 leading-[3rem] rounded-lg bg-primary text-background-dark font-bold text-lg hover:bg-primary-dark transition-all shadow-[0_0_20px_rgba(18,226,105,0.3)]">
+          <NuxtLink to="/apply" class="inline-block w-full sm:w-auto min-w-50 h-12 leading-12 rounded-lg bg-primary text-background-dark font-bold text-lg hover:bg-primary-dark transition-all shadow-[0_0_20px_rgba(18,226,105,0.3)]">
             Begin Application
           </NuxtLink>
           <p class="mt-4 text-xs text-gray-500">Applications for the Fall Cohort close in 14 days.</p>

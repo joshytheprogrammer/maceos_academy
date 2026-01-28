@@ -3,12 +3,12 @@
     <!-- Page Header -->
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
-        <h1 class="text-2xl font-bold text-white">Exam Management</h1>
-        <p class="mt-1 text-gray-400">Create and manage MCQ exams for students</p>
+        <h1 class="text-xl sm:text-2xl font-bold text-white">Exam Management</h1>
+        <p class="mt-1 text-xs sm:text-sm text-gray-400">Create and manage MCQ exams for students</p>
       </div>
       <button
         @click="openCreateModal"
-        class="inline-flex items-center gap-2 rounded-lg bg-green-500 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-green-600"
+        class="inline-flex items-center gap-2 rounded-lg bg-green-500 px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-medium text-white transition-colors hover:bg-green-600 w-full sm:w-auto justify-center sm:justify-start"
       >
         <span class="material-symbols-outlined text-[20px]">add</span>
         Create Exam
@@ -16,27 +16,27 @@
     </div>
 
     <!-- Stats Cards -->
-    <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      <div class="rounded-xl border border-gray-800 bg-gray-900 p-4">
-        <p class="text-sm text-gray-400">Total Exams</p>
-        <p class="mt-1 text-2xl font-bold text-white">{{ exams.length }}</p>
+    <div class="mt-6 grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+      <div class="rounded-xl border border-gray-800 bg-gray-900 p-3 sm:p-4">
+        <p class="text-xs sm:text-sm text-gray-400">Total Exams</p>
+        <p class="mt-1 text-xl sm:text-2xl font-bold text-white">{{ exams.length }}</p>
       </div>
-      <div class="rounded-xl border border-gray-800 bg-gray-900 p-4">
-        <p class="text-sm text-gray-400">Published</p>
-        <p class="mt-1 text-2xl font-bold text-green-400">{{ exams.filter(e => e.isPublished).length }}</p>
+      <div class="rounded-xl border border-gray-800 bg-gray-900 p-3 sm:p-4">
+        <p class="text-xs sm:text-sm text-gray-400">Published</p>
+        <p class="mt-1 text-xl sm:text-2xl font-bold text-green-400">{{ exams.filter(e => e.isPublished).length }}</p>
       </div>
-      <div class="rounded-xl border border-gray-800 bg-gray-900 p-4">
-        <p class="text-sm text-gray-400">Drafts</p>
-        <p class="mt-1 text-2xl font-bold text-amber-400">{{ exams.filter(e => !e.isPublished).length }}</p>
+      <div class="rounded-xl border border-gray-800 bg-gray-900 p-3 sm:p-4">
+        <p class="text-xs sm:text-sm text-gray-400">Drafts</p>
+        <p class="mt-1 text-xl sm:text-2xl font-bold text-amber-400">{{ exams.filter(e => !e.isPublished).length }}</p>
       </div>
-      <div class="rounded-xl border border-gray-800 bg-gray-900 p-4">
-        <p class="text-sm text-gray-400">Total Questions</p>
-        <p class="mt-1 text-2xl font-bold text-blue-400">{{ exams.reduce((sum, e) => sum + (e.questions?.length || 0), 0) }}</p>
+      <div class="rounded-xl border border-gray-800 bg-gray-900 p-3 sm:p-4">
+        <p class="text-xs sm:text-sm text-gray-400">Total Questions</p>
+        <p class="mt-1 text-xl sm:text-2xl font-bold text-blue-400">{{ exams.reduce((sum, e) => sum + (e.questions?.length || 0), 0) }}</p>
       </div>
     </div>
 
     <!-- Exams Table -->
-    <div class="mt-6 overflow-hidden rounded-xl border border-gray-800 bg-gray-900">
+    <div class="mt-6 rounded-xl border border-gray-800 bg-gray-900 overflow-x-auto">
       <!-- Loading State -->
       <div v-if="loading" class="flex items-center justify-center py-12">
         <div class="h-8 w-8 animate-spin rounded-full border-2 border-gray-600 border-t-green-500"></div>
@@ -56,62 +56,62 @@
         </button>
       </div>
 
-      <table v-else class="w-full">
+      <table v-else class="w-full min-w-max">
         <thead class="border-b border-gray-800 bg-gray-900/50">
           <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">Exam</th>
-            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">Week</th>
-            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">Questions</th>
-            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">Duration</th>
-            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">Status</th>
-            <th class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-400">Actions</th>
+            <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">Exam</th>
+            <th class="hidden sm:table-cell px-3 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">Week</th>
+            <th class="hidden md:table-cell px-3 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">Questions</th>
+            <th class="hidden lg:table-cell px-3 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">Duration</th>
+            <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">Status</th>
+            <th class="px-3 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-400">Actions</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-800">
           <tr v-for="exam in exams" :key="exam.$id" class="transition-colors hover:bg-gray-800/50">
-            <td class="px-6 py-4">
-              <div class="flex items-center gap-3">
-                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-green-500/20 text-green-400">
-                  <span class="material-symbols-outlined">quiz</span>
+            <td class="px-3 sm:px-6 py-4 max-w-xs lg:max-w-md">
+              <div class="flex items-center gap-2 sm:gap-3">
+                <div class="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-lg bg-green-500/20 text-green-400 shrink-0">
+                  <span class="material-symbols-outlined text-lg">quiz</span>
                 </div>
-                <div>
-                  <p class="font-medium text-white">{{ exam.title }}</p>
-                  <p class="text-sm text-gray-500 line-clamp-1">{{ exam.description || 'No description' }}</p>
+                <div class="min-w-0 flex-1">
+                  <p class="font-medium text-white text-xs sm:text-sm truncate">{{ exam.title }}</p>
+                  <p class="text-xs text-gray-500 truncate">{{ exam.description || 'No description' }}</p>
                 </div>
               </div>
             </td>
-            <td class="px-6 py-4">
-              <span class="rounded-full bg-gray-800 px-2.5 py-1 text-xs font-medium text-gray-300">
+            <td class="hidden sm:table-cell px-3 sm:px-6 py-4">
+              <span class="rounded-full bg-gray-800 px-2 py-0.5 text-xs font-medium text-gray-300">
                 Week {{ exam.week }}
               </span>
             </td>
-            <td class="px-6 py-4 text-gray-300">{{ exam.questions?.length || 0 }}</td>
-            <td class="px-6 py-4 text-gray-300">{{ exam.duration }} mins</td>
-            <td class="px-6 py-4">
+            <td class="hidden md:table-cell px-3 sm:px-6 py-4 text-xs sm:text-sm text-gray-300">{{ exam.questions?.length || 0 }}</td>
+            <td class="hidden lg:table-cell px-3 sm:px-6 py-4 text-xs sm:text-sm text-gray-300">{{ exam.duration }} mins</td>
+            <td class="px-3 sm:px-6 py-4">
               <span
                 :class="[
-                  'rounded-full px-2.5 py-1 text-xs font-medium',
+                  'rounded-full px-2 py-0.5 text-xs font-medium',
                   exam.isPublished ? 'bg-green-500/20 text-green-400' : 'bg-amber-500/20 text-amber-400'
                 ]"
               >
                 {{ exam.isPublished ? 'Published' : 'Draft' }}
               </span>
             </td>
-            <td class="px-6 py-4">
+            <td class="px-3 sm:px-6 py-4">
               <div class="flex items-center justify-end gap-1">
                 <button
                   @click="viewAttempts(exam)"
-                  class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-800 hover:text-white"
+                  class="rounded-lg p-1.5 sm:p-2 text-gray-400 transition-colors hover:bg-gray-800 hover:text-white"
                   title="View Attempts"
                 >
-                  <span class="material-symbols-outlined text-[20px]">group</span>
+                  <span class="material-symbols-outlined text-[18px] sm:text-[20px]">group</span>
                 </button>
                 <button
                   @click="openEditModal(exam)"
-                  class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-800 hover:text-green-400"
+                  class="rounded-lg p-1.5 sm:p-2 text-gray-400 transition-colors hover:bg-gray-800 hover:text-green-400"
                   title="Edit"
                 >
-                  <span class="material-symbols-outlined text-[20px]">edit</span>
+                  <span class="material-symbols-outlined text-[18px] sm:text-[20px]">edit</span>
                 </button>
                 <button
                   @click="confirmDelete(exam)"

@@ -3,15 +3,15 @@
     <!-- Page Header -->
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
-        <h1 class="text-2xl font-bold text-white">Support Tickets</h1>
-        <p class="mt-1 text-gray-400">Manage and respond to student support requests</p>
+        <h1 class="text-xl sm:text-2xl font-bold text-white">Support Tickets</h1>
+        <p class="mt-1 text-xs sm:text-sm text-gray-400">Manage and respond to student support requests</p>
       </div>
       
       <!-- Filters -->
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-2 flex-wrap">
         <select
           v-model="filterStatus"
-          class="rounded-lg border border-gray-800 bg-gray-900 px-3 py-2 text-sm text-white outline-none focus:border-green-500"
+          class="rounded-lg border border-gray-800 bg-gray-900 px-3 py-2 text-xs sm:text-sm text-white outline-none focus:border-green-500"
         >
           <option value="">All Status</option>
           <option value="open">Open</option>
@@ -20,7 +20,7 @@
         </select>
         <select
           v-model="filterCategory"
-          class="rounded-lg border border-gray-800 bg-gray-900 px-3 py-2 text-sm text-white outline-none focus:border-green-500"
+          class="rounded-lg border border-gray-800 bg-gray-900 px-3 py-2 text-xs sm:text-sm text-white outline-none focus:border-green-500"
         >
           <option value="">All Categories</option>
           <option v-for="cat in categories" :key="cat.value" :value="cat.value">
@@ -31,27 +31,27 @@
     </div>
 
     <!-- Stats Cards -->
-    <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      <div class="rounded-xl border border-gray-800 bg-gray-900 p-4">
-        <p class="text-sm text-gray-400">Total Tickets</p>
-        <p class="mt-1 text-2xl font-bold text-white">{{ stats.total }}</p>
+    <div class="mt-6 grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+      <div class="rounded-xl border border-gray-800 bg-gray-900 p-3 sm:p-4">
+        <p class="text-xs sm:text-sm text-gray-400">Total Tickets</p>
+        <p class="mt-1 text-xl sm:text-2xl font-bold text-white">{{ stats.total }}</p>
       </div>
-      <div class="rounded-xl border border-yellow-500/30 bg-gray-900 p-4">
-        <p class="text-sm text-gray-400">Open</p>
-        <p class="mt-1 text-2xl font-bold text-yellow-400">{{ stats.open }}</p>
+      <div class="rounded-xl border border-yellow-500/30 bg-gray-900 p-3 sm:p-4">
+        <p class="text-xs sm:text-sm text-gray-400">Open</p>
+        <p class="mt-1 text-xl sm:text-2xl font-bold text-yellow-400">{{ stats.open }}</p>
       </div>
-      <div class="rounded-xl border border-blue-500/30 bg-gray-900 p-4">
-        <p class="text-sm text-gray-400">In Progress</p>
-        <p class="mt-1 text-2xl font-bold text-blue-400">{{ stats.inProgress }}</p>
+      <div class="rounded-xl border border-blue-500/30 bg-gray-900 p-3 sm:p-4">
+        <p class="text-xs sm:text-sm text-gray-400">In Progress</p>
+        <p class="mt-1 text-xl sm:text-2xl font-bold text-blue-400">{{ stats.inProgress }}</p>
       </div>
-      <div class="rounded-xl border border-green-500/30 bg-gray-900 p-4">
-        <p class="text-sm text-gray-400">Resolved</p>
-        <p class="mt-1 text-2xl font-bold text-green-400">{{ stats.resolved }}</p>
+      <div class="rounded-xl border border-green-500/30 bg-gray-900 p-3 sm:p-4">
+        <p class="text-xs sm:text-sm text-gray-400">Resolved</p>
+        <p class="mt-1 text-xl sm:text-2xl font-bold text-green-400">{{ stats.resolved }}</p>
       </div>
     </div>
 
     <!-- Tickets Table -->
-    <div class="mt-6 overflow-hidden rounded-xl border border-gray-800 bg-gray-900">
+    <div class="mt-6 rounded-xl border border-gray-800 bg-gray-900 overflow-x-auto">
       <!-- Loading State -->
       <div v-if="loading" class="flex items-center justify-center py-12">
         <div class="h-8 w-8 animate-spin rounded-full border-2 border-gray-600 border-t-green-500"></div>
@@ -59,22 +59,22 @@
 
       <!-- Empty State -->
       <div v-else-if="filteredTickets.length === 0" class="py-12 text-center">
-        <span class="material-symbols-outlined text-5xl text-gray-600">support_agent</span>
-        <h3 class="mt-4 text-lg font-medium text-white">No Tickets Found</h3>
-        <p class="mt-1 text-gray-400">
+        <span class="material-symbols-outlined text-4xl sm:text-5xl text-gray-600">support_agent</span>
+        <h3 class="mt-4 text-base sm:text-lg font-medium text-white">No Tickets Found</h3>
+        <p class="mt-1 text-xs sm:text-sm text-gray-400">
           {{ filterStatus || filterCategory ? 'Try adjusting your filters' : 'No support tickets have been submitted yet' }}
         </p>
       </div>
 
-      <table v-else class="w-full">
+      <table v-else class="w-full min-w-max">
         <thead class="border-b border-gray-800 bg-gray-900/50">
           <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">Ticket</th>
-            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">User</th>
-            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">Category</th>
-            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">Status</th>
-            <th class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">Created</th>
-            <th class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-400">Actions</th>
+            <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">Ticket</th>
+            <th class="hidden sm:table-cell px-3 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">User</th>
+            <th class="hidden md:table-cell px-3 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">Category</th>
+            <th class="px-3 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">Status</th>
+            <th class="hidden lg:table-cell px-3 sm:px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-400">Created</th>
+            <th class="px-3 sm:px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-400">Actions</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-800">
@@ -83,28 +83,28 @@
             :key="ticket.$id"
             class="transition-colors hover:bg-gray-800/50"
           >
-            <td class="px-6 py-4">
-              <div class="max-w-xs">
-                <p class="font-medium text-white truncate">{{ ticket.subject }}</p>
-                <p class="text-sm text-gray-500 line-clamp-1">{{ ticket.message }}</p>
+            <td class="px-3 sm:px-6 py-4">
+              <div class="max-w-[150px] sm:max-w-xs">
+                <p class="font-medium text-white text-xs sm:text-sm truncate">{{ ticket.subject }}</p>
+                <p class="text-xs text-gray-500 line-clamp-1">{{ ticket.message }}</p>
               </div>
             </td>
-            <td class="px-6 py-4">
-              <div>
-                <p class="text-sm font-medium text-white">{{ ticketUsers[ticket.userId]?.name || 'Unknown' }}</p>
-                <p class="text-xs text-gray-500">{{ ticketUsers[ticket.userId]?.email || ticket.userId }}</p>
+            <td class="hidden sm:table-cell px-3 sm:px-6 py-4">
+              <div class="min-w-0">
+                <p class="text-xs sm:text-sm font-medium text-white truncate">{{ ticketUsers[ticket.userId]?.name || 'Unknown' }}</p>
+                <p class="text-xs text-gray-500 truncate">{{ ticketUsers[ticket.userId]?.email || ticket.userId }}</p>
               </div>
             </td>
-            <td class="px-6 py-4">
-              <span class="inline-flex items-center gap-1 rounded-full bg-gray-800 px-2.5 py-1 text-xs font-medium text-gray-300">
+            <td class="hidden md:table-cell px-3 sm:px-6 py-4">
+              <span class="inline-flex items-center gap-1 rounded-full bg-gray-800 px-2 py-0.5 text-xs font-medium text-gray-300">
                 <span>{{ getCategoryInfo(ticket.category).icon }}</span>
                 {{ getCategoryInfo(ticket.category).label }}
               </span>
             </td>
-            <td class="px-6 py-4">
+            <td class="px-3 sm:px-6 py-4">
               <span
                 :class="[
-                  'rounded-full px-2.5 py-1 text-xs font-medium',
+                  'rounded-full px-2 py-0.5 text-xs font-medium',
                   ticket.status === 'open' ? 'bg-yellow-500/20 text-yellow-400' :
                   ticket.status === 'in-progress' ? 'bg-blue-500/20 text-blue-400' :
                   'bg-green-500/20 text-green-400'
@@ -113,24 +113,24 @@
                 {{ getStatusInfo(ticket.status).label }}
               </span>
             </td>
-            <td class="px-6 py-4 text-sm text-gray-400">
+            <td class="hidden lg:table-cell px-3 sm:px-6 py-4 text-xs sm:text-sm text-gray-400">
               {{ formatDate(ticket.$createdAt) }}
             </td>
-            <td class="px-6 py-4">
+            <td class="px-3 sm:px-6 py-4">
               <div class="flex items-center justify-end gap-1">
                 <button
                   @click="openResponseModal(ticket)"
-                  class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-800 hover:text-green-400"
+                  class="rounded-lg p-1.5 sm:p-2 text-gray-400 transition-colors hover:bg-gray-800 hover:text-green-400"
                   title="View / Respond"
                 >
-                  <span class="material-symbols-outlined text-[20px]">reply</span>
+                  <span class="material-symbols-outlined text-[18px] sm:text-[20px]">reply</span>
                 </button>
                 <button
                   @click="confirmDelete(ticket)"
-                  class="rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-500/10 hover:text-red-400"
+                  class="rounded-lg p-1.5 sm:p-2 text-gray-400 transition-colors hover:bg-red-500/10 hover:text-red-400"
                   title="Delete"
                 >
-                  <span class="material-symbols-outlined text-[20px]">delete</span>
+                  <span class="material-symbols-outlined text-[18px] sm:text-[20px]">delete</span>
                 </button>
               </div>
             </td>
@@ -143,7 +143,7 @@
     <Teleport to="body">
       <div
         v-if="showResponseModal && selectedTicket"
-        class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-4"
+        class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-2 sm:p-4"
       >
         <div class="fixed inset-0 bg-black/70" @click="showResponseModal = false"></div>
         <div class="relative w-full max-w-2xl rounded-xl border border-gray-800 bg-gray-900 shadow-2xl">

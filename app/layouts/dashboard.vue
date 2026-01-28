@@ -1,7 +1,14 @@
 <template>
   <div class="min-h-screen bg-background-dark">
-    <!-- Student Sidebar -->
-    <aside class="fixed left-0 top-0 z-40 h-screen w-64 border-r border-surface-border bg-surface-dark">
+    <!-- Admin Sidebar -->
+    <aside 
+      :class="[
+        'fixed left-0 top-0 z-40 h-screen w-64 border-r border-surface-border bg-surface-dark',
+        'transition-transform duration-300 ease-in-out',
+        'md:translate-x-0',
+        mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+      ]"
+    >
       <!-- Logo -->
       <div class="flex h-16 items-center border-b border-surface-border px-6">
         <NuxtLink to="/dashboard" class="flex items-center gap-2">
@@ -120,9 +127,17 @@
     </aside>
 
     <!-- Main Content -->
-    <div class="pl-64">
+    <div class="md:pl-64">
       <!-- Top Bar -->
-      <header class="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-surface-border bg-background-dark/80 px-8 backdrop-blur-md">
+      <header class="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-surface-border bg-background-dark/80 px-4 md:px-8 backdrop-blur-md">
+        <!-- Mobile Menu Button -->
+        <button 
+          @click="mobileMenuOpen = !mobileMenuOpen"
+          class="md:hidden p-2 text-gray-400 hover:text-white transition-colors"
+        >
+          <span class="material-symbols-outlined">{{ mobileMenuOpen ? 'close' : 'menu' }}</span>
+        </button>
+        
         <div>
           <h2 class="text-lg font-bold text-white font-display">{{ pageTitle }}</h2>
         </div>
@@ -134,26 +149,26 @@
           </button>
           
           <!-- Help -->
-          <button class="p-2 text-gray-400 hover:text-white hover:bg-surface-dark rounded-lg transition-colors">
+          <button class="hidden sm:block p-2 text-gray-400 hover:text-white hover:bg-surface-dark rounded-lg transition-colors">
             <span class="material-symbols-outlined">help</span>
           </button>
         </div>
       </header>
 
       <!-- Email Verification Banner -->
-      <div v-if="!isEmailVerified" class="bg-gradient-to-r from-yellow-500/20 via-yellow-500/10 to-yellow-500/20 border-b border-yellow-500/30 px-8 py-3">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <span class="material-symbols-outlined text-yellow-400 animate-pulse">warning</span>
-            <p class="text-sm font-medium text-yellow-200">
-              <span class="font-bold">Action Required:</span> Please verify your email address to access all features.
+      <div v-if="!isEmailVerified" class="bg-linear-to-r from-yellow-500/20 via-yellow-500/10 to-yellow-500/20 border-b border-yellow-500/30 px-4 md:px-8 py-2 md:py-3">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-3">
+          <div class="flex items-center gap-2 sm:gap-3">
+            <span class="material-symbols-outlined text-yellow-400 animate-pulse text-lg sm:text-2xl">warning</span>
+            <p class="text-xs sm:text-sm font-medium text-yellow-200">
+              <span class="font-bold">Action Required:</span> <span class="hidden sm:inline">Please</span> verify your email<span class="hidden sm:inline"> address to access all features</span>.
             </p>
           </div>
-          <div class="flex items-center gap-3">
+          <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
             <button
               @click="handleSendVerificationFromBanner"
               :disabled="sendingVerificationBanner || bannerCooldown > 0"
-              class="flex items-center gap-2 rounded-lg bg-yellow-500 px-4 py-1.5 text-sm font-bold text-yellow-900 transition-all hover:bg-yellow-400 disabled:cursor-not-allowed disabled:opacity-50"
+              class="flex items-center gap-2 rounded-lg bg-yellow-500 px-3 sm:px-4 py-1 sm:py-1.5 text-xs sm:text-sm font-bold text-yellow-900 transition-all hover:bg-yellow-400 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <span v-if="sendingVerificationBanner" class="h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent"></span>
               <span v-if="bannerCooldown > 0">{{ bannerCooldown }}s</span>
@@ -162,7 +177,7 @@
             </button>
             <NuxtLink 
               to="/dashboard/profile"
-              class="text-sm text-yellow-300 hover:text-yellow-100 underline underline-offset-2"
+              class="text-xs sm:text-sm text-yellow-300 hover:text-yellow-100 underline underline-offset-2"
             >
               Learn more
             </NuxtLink>
@@ -174,16 +189,29 @@
       </div>
 
       <!-- Page Content -->
-      <main class="p-8">
+      <main class="p-4 md:p-8">
         <slot />
       </main>
     </div>
+
+    <!-- Mobile Overlay -->
+    <div 
+      v-if="mobileMenuOpen" 
+      @click="mobileMenuOpen = false"
+      class="fixed inset-0 z-30 bg-black/50 md:hidden"
+    ></div>
   </div>
 </template>
 
 <script setup>
 const route = useRoute()
 const { user, logout, isEmailVerified, sendVerificationEmail } = useAuth()
+const mobileMenuOpen = ref(false)
+
+// Close menu when route changes
+watch(() => route.path, () => {
+  mobileMenuOpen.value = false
+})
 
 // Email verification from banner
 const sendingVerificationBanner = ref(false)
