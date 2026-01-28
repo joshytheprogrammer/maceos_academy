@@ -131,6 +131,90 @@ export const useAuth = () => {
    */
   const isStudent = computed(() => hasRole('student'))
 
+  /**
+   * Update user password
+   */
+  const updatePassword = async (currentPassword, newPassword) => {
+    loading.value = true
+    error.value = null
+    try {
+      await account.updatePassword({ password: newPassword, oldPassword: currentPassword })
+      return { success: true }
+    }
+    catch (e) {
+      error.value = e.message
+      return { success: false, error: e.message }
+    }
+    finally {
+      loading.value = false
+    }
+  }
+
+  /**
+   * Update user name
+   */
+  const updateName = async (name) => {
+    loading.value = true
+    error.value = null
+    try {
+      await account.updateName({ name })
+      await fetchUser() // Refresh user data
+      return { success: true }
+    }
+    catch (e) {
+      error.value = e.message
+      return { success: false, error: e.message }
+    }
+    finally {
+      loading.value = false
+    }
+  }
+
+  /**
+   * Update user email (requires password verification)
+   */
+  const updateEmail = async (email, password) => {
+    loading.value = true
+    error.value = null
+    try {
+      await account.updateEmail({ email, password })
+      await fetchUser() // Refresh user data
+      return { success: true }
+    }
+    catch (e) {
+      error.value = e.message
+      return { success: false, error: e.message }
+    }
+    finally {
+      loading.value = false
+    }
+  }
+
+  /**
+   * Get user preferences
+   */
+  const getPrefs = async () => {
+    try {
+      return await account.getPrefs()
+    }
+    catch (e) {
+      return {}
+    }
+  }
+
+  /**
+   * Update user preferences
+   */
+  const updatePrefs = async (prefs) => {
+    try {
+      await account.updatePrefs({ prefs })
+      return { success: true }
+    }
+    catch (e) {
+      return { success: false, error: e.message }
+    }
+  }
+
   return {
     user,
     loading,
@@ -143,5 +227,10 @@ export const useAuth = () => {
     hasRole,
     isAdmin,
     isStudent,
+    updatePassword,
+    updateName,
+    updateEmail,
+    getPrefs,
+    updatePrefs,
   }
 }
