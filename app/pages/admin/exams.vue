@@ -376,9 +376,12 @@
     <Teleport to="body">
       <div v-if="showAttemptsModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div class="fixed inset-0 bg-black/70" @click="showAttemptsModal = false"></div>
-        <div class="relative flex max-h-[80vh] w-full max-w-3xl flex-col rounded-xl border border-gray-800 bg-gray-900 shadow-2xl">
+        <div class="relative flex max-h-[80vh] w-full max-w-4xl flex-col rounded-xl border border-gray-800 bg-gray-900 shadow-2xl">
           <div class="flex items-center justify-between border-b border-gray-800 px-6 py-4">
-            <h2 class="text-xl font-semibold text-white">Exam Attempts</h2>
+            <div>
+              <h2 class="text-xl font-semibold text-white">Exam Attempts</h2>
+              <p class="text-sm text-gray-400">{{ selectedExamTitle }}</p>
+            </div>
             <button @click="showAttemptsModal = false" class="text-gray-400 hover:text-white">
               <span class="material-symbols-outlined">close</span>
             </button>
@@ -390,35 +393,86 @@
             </div>
             
             <div v-else-if="examAttempts.length === 0" class="py-10 text-center text-gray-400">
-              No attempts recorded yet
+              <span class="material-symbols-outlined mb-2 text-4xl text-gray-600">person_off</span>
+              <p>No attempts recorded yet</p>
             </div>
             
-            <div v-else class="space-y-3">
-              <div
-                v-for="attempt in examAttempts"
-                :key="attempt.$id"
-                class="flex items-center justify-between rounded-lg bg-gray-800 p-4"
-              >
-                <div>
-                  <p class="font-medium text-white">{{ attempt.userId }}</p>
-                  <p class="text-sm text-gray-400">{{ formatDate(attempt.startedAt) }}</p>
-                </div>
-                <div class="text-right">
-                  <div class="flex items-center gap-2">
-                    <span :class="['text-lg font-bold', attempt.passed ? 'text-green-400' : 'text-red-400']">
-                      {{ attempt.score ?? '-' }}%
-                    </span>
+            <!-- Attempts Table -->
+            <table v-else class="w-full">
+              <thead class="border-b border-gray-700 text-left">
+                <tr>
+                  <th class="pb-3 text-xs font-medium uppercase tracking-wider text-gray-400">Student</th>
+                  <th class="pb-3 text-xs font-medium uppercase tracking-wider text-gray-400">Started</th>
+                  <th class="pb-3 text-xs font-medium uppercase tracking-wider text-gray-400">Time Spent</th>
+                  <th class="pb-3 text-xs font-medium uppercase tracking-wider text-gray-400">Score</th>
+                  <th class="pb-3 text-xs font-medium uppercase tracking-wider text-gray-400">Status</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-800">
+                <tr v-for="attempt in examAttempts" :key="attempt.$id" class="group">
+                  <td class="py-4">
+                    <div class="flex items-center gap-3">
+                      <div class="flex h-9 w-9 items-center justify-center rounded-full bg-gray-800 text-sm font-medium text-gray-300">
+                        {{ (attemptUsers[attempt.userId]?.name || 'U').charAt(0).toUpperCase() }}
+                      </div>
+                      <div>
+                        <p class="font-medium text-white">{{ attemptUsers[attempt.userId]?.name || 'Unknown User' }}</p>
+                        <p class="text-xs text-gray-500">{{ attemptUsers[attempt.userId]?.email || attempt.userId }}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="py-4 text-sm text-gray-300">
+                    {{ formatDate(attempt.startedAt) }}
+                  </td>
+                  <td class="py-4 text-sm text-gray-300">
+                    {{ attempt.timeSpent ? Math.floor(attempt.timeSpent / 60) + 'm ' + (attempt.timeSpent % 60) + 's' : '-' }}
+                  </td>
+                  <td class="py-4">
+                    <div class="flex items-center gap-2">
+                      <span :class="['text-lg font-bold', attempt.passed ? 'text-green-400' : (attempt.isSubmitted ? 'text-red-400' : 'text-gray-400')]">
+                        {{ attempt.score ?? '-' }}%
+                      </span>
+                      <span class="text-xs text-gray-500">
+                        ({{ attempt.correctAnswers ?? 0 }}/{{ attempt.totalQuestions }})
+                      </span>
+                    </div>
+                  </td>
+                  <td class="py-4">
                     <span
                       :class="[
-                        'rounded-full px-2 py-0.5 text-xs',
-                        attempt.passed ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
+                        'rounded-full px-2.5 py-1 text-xs font-medium',
+                        attempt.passed ? 'bg-green-500/20 text-green-400' : 
+                        attempt.isSubmitted ? 'bg-red-500/20 text-red-400' : 'bg-amber-500/20 text-amber-400'
                       ]"
                     >
                       {{ attempt.passed ? 'Passed' : (attempt.isSubmitted ? 'Failed' : 'In Progress') }}
                     </span>
-                  </div>
-                  <p class="text-xs text-gray-400">{{ attempt.correctAnswers ?? 0 }}/{{ attempt.totalQuestions }} correct</p>
-                </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <!-- Summary Stats -->
+            <div v-if="examAttempts.length > 0" class="mt-6 grid grid-cols-4 gap-4 border-t border-gray-800 pt-6">
+              <div class="text-center">
+                <p class="text-2xl font-bold text-white">{{ examAttempts.length }}</p>
+                <p class="text-xs text-gray-400">Total Attempts</p>
+              </div>
+              <div class="text-center">
+                <p class="text-2xl font-bold text-green-400">{{ examAttempts.filter(a => a.passed).length }}</p>
+                <p class="text-xs text-gray-400">Passed</p>
+              </div>
+              <div class="text-center">
+                <p class="text-2xl font-bold text-red-400">{{ examAttempts.filter(a => a.isSubmitted && !a.passed).length }}</p>
+                <p class="text-xs text-gray-400">Failed</p>
+              </div>
+              <div class="text-center">
+                <p class="text-2xl font-bold text-blue-400">
+                  {{ examAttempts.filter(a => a.isSubmitted).length > 0 
+                    ? Math.round(examAttempts.filter(a => a.isSubmitted).reduce((sum, a) => sum + (a.score || 0), 0) / examAttempts.filter(a => a.isSubmitted).length) 
+                    : 0 }}%
+                </p>
+                <p class="text-xs text-gray-400">Avg Score</p>
               </div>
             </div>
           </div>
@@ -481,6 +535,8 @@ const deleting = ref(false)
 const showAttemptsModal = ref(false)
 const loadingAttempts = ref(false)
 const examAttempts = ref([])
+const attemptUsers = ref({})
+const selectedExamTitle = ref('')
 
 // Form Data
 const getEmptyForm = () => ({
@@ -639,8 +695,21 @@ const handleDelete = async () => {
 const viewAttempts = async (exam) => {
   showAttemptsModal.value = true
   loadingAttempts.value = true
+  selectedExamTitle.value = exam.title
+  attemptUsers.value = {}
+  
   try {
-    examAttempts.value = await getExamAttempts(exam.$id)
+    const attempts = await getExamAttempts(exam.$id)
+    examAttempts.value = attempts
+    
+    // Fetch user details for all attempts
+    if (attempts.length > 0) {
+      const userIds = [...new Set(attempts.map(a => a.userId))]
+      const users = await $fetch('/api/users/batch', {
+        query: { ids: userIds.join(',') }
+      })
+      attemptUsers.value = users
+    }
   } catch (e) {
     console.error('Failed to load attempts:', e)
   } finally {
