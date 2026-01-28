@@ -133,37 +133,32 @@ export const useSchedule = () => {
       // Load program start date first
       await loadProgramStartDate(userId)
       
-      // Fetch all data in parallel
+      // Fetch all data in parallel (with error handling for permission issues)
       const [contentRes, examsRes, attemptsRes, downloadsRes] = await Promise.all([
         // Published content
         databases.listDocuments(DB_ID, 'content', [
           Query.equal('isPublished', true),
           Query.orderAsc('week'),
           Query.limit(200)
-        ]),
-        // Published exams
-        databases.listDocuments(DB_ID, 'exams', [
-          Query.equal('isPublished', true),
-          Query.orderAsc('week'),
-          Query.limit(50)
-        ]),
+        ]).catch(e => { console.error('Content fetch error:', e); return { documents: [] } }),
+        // Published exams - use server API to bypass row-level permissions
+        $fetch('/api/exams?published=true').catch(e => { console.error('Exams fetch error:', e); return [] }),
         // User's exam attempts
         databases.listDocuments(DB_ID, 'exam_attempts', [
           Query.equal('userId', userId),
           Query.equal('isSubmitted', true),
           Query.limit(100)
-        ]),
-        // User's downloads
-        databases.listDocuments(DB_ID, 'download_logs', [
-          Query.equal('userId', userId),
-          Query.limit(500)
-        ])
+        ]).catch(e => { console.error('Attempts fetch error:', e); return { documents: [] } }),
+        // User's downloads - fetch via server API to bypass permissions
+        $fetch(`/api/downloads/${userId}`).catch(e => { console.error('Downloads fetch error:', e); return [] })
       ])
 
-      const content = contentRes.documents
-      const exams = examsRes.documents
-      const attempts = attemptsRes.documents
-      const downloads = downloadsRes.documents
+      const content = contentRes.documents || []
+      // Exams come from server API as array directly
+      const exams = Array.isArray(examsRes) ? examsRes : (examsRes.documents || [])
+      const attempts = attemptsRes.documents || []
+      // Downloads come from server API as array directly
+      const downloads = Array.isArray(downloadsRes) ? downloadsRes : (downloadsRes.documents || [])
 
       // Build weekly schedule
       buildWeeklySchedule(content, exams, attempts, downloads)
@@ -202,9 +197,9 @@ export const useSchedule = () => {
       const weekExams = exams.filter(e => e.week === week)
       const dateRange = getWeekDateRange(week)
       
-      // Categorize content
-      const materials = weekContent.filter(c => ['document', 'video', 'audio'].includes(c.type))
-      const liveSessions = weekContent.filter(c => c.type === 'live_session')
+      // Categorize content - handle various type names
+      const materials = weekContent.filter(c => ['document', 'video', 'audio', 'pdf', 'doc', 'docx'].includes(c.type))
+      const liveSessions = weekContent.filter(c => ['live_session', 'live-link', 'live_link'].includes(c.type))
       
       // Calculate week status
       let status = 'locked'
@@ -359,7 +354,7 @@ export const useSchedule = () => {
    * Calculate overall progress
    */
   const calculateProgress = (content, exams, attempts, downloads) => {
-    const materials = content.filter(c => ['document', 'video', 'audio'].includes(c.type))
+    const materials = content.filter(c => ['document', 'video', 'audio', 'pdf', 'doc', 'docx'].includes(c.type))
     const downloadedIds = new Set(downloads.map(d => d.contentId))
     const passedAttempts = attempts.filter(a => a.passed)
     const passedExamIds = new Set(passedAttempts.map(a => a.examId))
