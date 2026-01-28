@@ -1,4 +1,4 @@
-import { ID, Query } from 'appwrite'
+import { ID, Query, Permission, Role } from 'appwrite'
 import { databases } from '~/utils/appwrite'
 
 const DB_ID = 'academia_db'
@@ -297,11 +297,10 @@ export const useExam = () => {
           startedAt: new Date().toISOString(),
           isSubmitted: false
         },
-        // Set document-level permissions for the user
+        // Set document-level permissions - user can read/update their own attempt
         [
-          `read("user:${userId}")`,
-          `update("user:${userId}")`,
-          `read("label:admin")`
+          Permission.read(Role.user(userId)),
+          Permission.update(Role.user(userId))
         ]
       )
       

@@ -269,44 +269,59 @@
       <div v-if="showResults" class="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div class="fixed inset-0 bg-black/80"></div>
         <div class="relative w-full max-w-sm rounded-xl border border-surface-border bg-surface-dark p-6 text-center shadow-2xl">
-          <!-- Pass/Fail Icon -->
-          <div
-            :class="[
-              'mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full',
-              examResult.passed ? 'bg-primary/20' : 'bg-red-500/20'
-            ]"
-          >
-            <span
-              :class="['material-symbols-outlined text-4xl', examResult.passed ? 'text-primary' : 'text-red-400']"
+          <!-- Loading State while grading -->
+          <template v-if="!examResult || examResult.score === undefined">
+            <div class="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-primary/20">
+              <div class="h-8 w-8 animate-spin rounded-full border-3 border-primary border-t-transparent"></div>
+            </div>
+            <h2 class="mb-1 text-xl font-bold text-white">Grading Your Exam</h2>
+            <p class="mb-5 text-sm text-gray-400">Please wait while we calculate your results...</p>
+            <div class="h-1.5 overflow-hidden rounded-full bg-background-dark">
+              <div class="h-full w-1/2 animate-pulse bg-primary"></div>
+            </div>
+          </template>
+
+          <!-- Results -->
+          <template v-else>
+            <!-- Pass/Fail Icon -->
+            <div
+              :class="[
+                'mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full',
+                examResult.passed ? 'bg-primary/20' : 'bg-red-500/20'
+              ]"
             >
-              {{ examResult.passed ? 'check_circle' : 'cancel' }}
-            </span>
-          </div>
-
-          <h2 class="mb-1 text-xl font-bold text-white">
-            {{ examResult.passed ? 'Congratulations!' : 'Keep Trying!' }}
-          </h2>
-          <p class="mb-5 text-sm text-gray-400">
-            {{ examResult.passed ? 'You passed the exam!' : 'You did not pass this time.' }}
-          </p>
-
-          <!-- Score -->
-          <div class="mb-5 rounded-lg bg-background-dark p-4">
-            <div :class="['mb-1 text-4xl font-bold', examResult.passed ? 'text-primary' : 'text-red-400']">
-              {{ examResult.score }}%
+              <span
+                :class="['material-symbols-outlined text-4xl', examResult.passed ? 'text-primary' : 'text-red-400']"
+              >
+                {{ examResult.passed ? 'check_circle' : 'cancel' }}
+              </span>
             </div>
-            <div class="text-sm text-gray-400">
-              {{ examResult.correctAnswers }}/{{ examResult.totalQuestions }} correct
-            </div>
-            <div class="mt-1 text-xs text-gray-500">Pass mark: {{ exam.passingScore }}%</div>
-          </div>
 
-          <NuxtLink
-            to="/dashboard/exams"
-            class="block w-full rounded-lg bg-primary py-2.5 text-sm font-medium text-background-dark transition-colors hover:bg-primary-dark"
-          >
-            Back to Exams
-          </NuxtLink>
+            <h2 class="mb-1 text-xl font-bold text-white">
+              {{ examResult.passed ? 'Congratulations!' : 'Keep Trying!' }}
+            </h2>
+            <p class="mb-5 text-sm text-gray-400">
+              {{ examResult.passed ? 'You passed the exam!' : 'You did not pass this time.' }}
+            </p>
+
+            <!-- Score -->
+            <div class="mb-5 rounded-lg bg-background-dark p-4">
+              <div :class="['mb-1 text-4xl font-bold', examResult.passed ? 'text-primary' : 'text-red-400']">
+                {{ examResult.score }}%
+              </div>
+              <div class="text-sm text-gray-400">
+                {{ examResult.correctAnswers }}/{{ examResult.totalQuestions }} correct
+              </div>
+              <div class="mt-1 text-xs text-gray-500">Pass mark: {{ exam.passingScore }}%</div>
+            </div>
+
+            <NuxtLink
+              to="/dashboard/exams"
+              class="block w-full rounded-lg bg-primary py-2.5 text-sm font-medium text-background-dark transition-colors hover:bg-primary-dark"
+            >
+              Back to Exams
+            </NuxtLink>
+          </template>
         </div>
       </div>
     </Teleport>
@@ -323,7 +338,6 @@ const examId = route.params.id
 
 const { user } = useAuth()
 const { getExam, getUserAttempts, startExamAttempt, saveAnswers, isExamAvailable } = useExam()
-const { functions } = await import('~/utils/appwrite')
 
 // Page State
 const pageLoading = ref(true)
@@ -463,6 +477,37 @@ const autoSave = async () => {
   }
 }
 
+// Poll for graded results
+const pollForResults = async (attemptId) => {
+  const { getAttempt } = useExam()
+  let attempts = 0
+  const maxAttempts = 10
+  
+  const poll = async () => {
+    attempts++
+    try {
+      const attempt = await getAttempt(attemptId)
+      if (attempt && attempt.score !== null && attempt.score !== undefined) {
+        examResult.value = {
+          score: attempt.score,
+          correctAnswers: attempt.correctAnswers,
+          totalQuestions: attempt.totalQuestions,
+          passed: attempt.passed
+        }
+        return
+      }
+    } catch (e) {
+      console.error('Poll error:', e)
+    }
+    
+    if (attempts < maxAttempts) {
+      setTimeout(poll, 1000)
+    }
+  }
+  
+  setTimeout(poll, 500)
+}
+
 // Submit exam
 const submitExam = async (autoSubmit = false) => {
   if (submitting.value) return
@@ -476,29 +521,23 @@ const submitExam = async (autoSubmit = false) => {
   try {
     const timeSpent = (exam.value.duration * 60) - timeRemaining.value
     
-    // Call Appwrite Function for secure grading
-    const execution = await functions.createExecution(
-      'grade-exam',
-      JSON.stringify({
+    // Submit answers - grading happens in background
+    await $fetch('/api/exams/submit', {
+      method: 'POST',
+      body: {
         attemptId: currentAttempt.value.$id,
         examId: examId,
         answers: answers.value,
         timeSpent
-      }),
-      false, // async = false (wait for result)
-      '/',   // path
-      'POST' // method
-    )
+      }
+    })
     
-    // Parse the function response
-    const result = JSON.parse(execution.responseBody)
-    
-    if (!result.success) {
-      throw new Error(result.error || 'Grading failed')
-    }
-    
-    examResult.value = result
+    // Show results modal immediately (in loading state)
+    examResult.value = {}
     showResults.value = true
+    
+    // Poll for graded results
+    pollForResults(currentAttempt.value.$id)
   } catch (e) {
     console.error('Failed to submit exam:', e)
     alert('Failed to submit exam. Please try again.')

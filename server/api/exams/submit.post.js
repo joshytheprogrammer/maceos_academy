@@ -1,4 +1,4 @@
-import { Client, Databases, Query } from 'node-appwrite'
+import { Client, Databases } from 'node-appwrite'
 
 const DB_ID = 'academia_db'
 const EXAMS_COLLECTION = 'exams'
@@ -26,19 +26,49 @@ export default defineEventHandler(async (event) => {
   const databases = new Databases(client)
 
   try {
+    // STEP 1: Immediately save answers and mark as submitted (fast response)
+    await databases.updateDocument(
+      DB_ID,
+      ATTEMPTS_COLLECTION,
+      attemptId,
+      {
+        answers: JSON.stringify(answers),
+        isSubmitted: true,
+        submittedAt: new Date().toISOString(),
+        timeSpent: timeSpent || 0
+      }
+    )
+
+    // STEP 2: Grade in background (non-blocking)
+    gradeExamInBackground(databases, examId, attemptId, answers)
+
+    // Return immediately - grading happens in background
+    return {
+      success: true,
+      submitted: true,
+      message: 'Exam submitted successfully. Results are being calculated.'
+    }
+  }
+  catch (error) {
+    console.error('Exam submission error:', error)
+    
+    if (error.statusCode) {
+      throw error
+    }
+    
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Failed to submit exam: ' + (error.message || 'Unknown error')
+    })
+  }
+})
+
+// Background grading function
+async function gradeExamInBackground(databases, examId, attemptId, answers) {
+  try {
     // Fetch the exam to get questions and passing score
     const exam = await databases.getDocument(DB_ID, EXAMS_COLLECTION, examId)
     const questions = JSON.parse(exam.questions || '[]')
-    
-    // Fetch the attempt to verify it exists and isn't already submitted
-    const attempt = await databases.getDocument(DB_ID, ATTEMPTS_COLLECTION, attemptId)
-    
-    if (attempt.isSubmitted) {
-      throw createError({
-        statusCode: 400,
-        statusMessage: 'This exam attempt has already been submitted'
-      })
-    }
 
     // Grade the exam
     let correctAnswers = 0
@@ -49,7 +79,6 @@ export default defineEventHandler(async (event) => {
       const points = question.points || 1
       totalPoints += points
       
-      // Check if the student's answer matches the correct answer
       if (answers[question.id] === question.correctAnswer) {
         correctAnswers++
         earnedPoints += points
@@ -64,45 +93,23 @@ export default defineEventHandler(async (event) => {
     // Determine if passed
     const passed = score >= exam.passingScore
 
-    // Update the attempt with results
-    const updatedAttempt = await databases.updateDocument(
+    // Update the attempt with graded results
+    await databases.updateDocument(
       DB_ID,
       ATTEMPTS_COLLECTION,
       attemptId,
       {
-        answers: JSON.stringify(answers),
         score,
         correctAnswers,
         totalQuestions: questions.length,
-        isSubmitted: true,
-        passed,
-        submittedAt: new Date().toISOString(),
-        timeSpent: timeSpent || 0
+        passed
       }
     )
 
-    // Return the result
-    return {
-      success: true,
-      score,
-      correctAnswers,
-      totalQuestions: questions.length,
-      passed,
-      passingScore: exam.passingScore,
-      timeSpent: timeSpent || 0
-    }
+    console.log(`Exam ${attemptId} graded: ${score}% (${passed ? 'PASSED' : 'FAILED'})`)
   }
   catch (error) {
-    console.error('Exam submission error:', error)
-    
-    // If it's already a createError, re-throw it
-    if (error.statusCode) {
-      throw error
-    }
-    
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'Failed to submit exam: ' + (error.message || 'Unknown error')
-    })
+    console.error('Background grading error:', error)
+    // Grading failed but submission was saved - can be retried or manually graded
   }
-})
+}
