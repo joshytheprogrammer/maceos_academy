@@ -12,14 +12,14 @@
     <!-- Admin Sidebar -->
     <aside 
       :class="[
-        'fixed left-0 top-0 z-40 h-screen w-64 border-r border-gray-800 bg-gray-900',
+        'fixed left-0 top-0 z-40 h-screen w-64 border-r border-gray-800 bg-gray-900 flex flex-col',
         'transition-transform duration-300 ease-in-out',
         'md:translate-x-0',
         mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
       ]"
     >
       <!-- Logo -->
-      <div class="flex h-16 items-center border-b border-gray-800 px-6">
+      <div class="flex h-16 shrink-0 items-center border-b border-gray-800 px-6">
         <NuxtLink to="/admin" class="flex items-center gap-2">
           <h1 class="text-xl font-bold tracking-tight">
             <span class="text-white">MACEOS</span>
@@ -30,7 +30,7 @@
       </div>
 
       <!-- Navigation -->
-      <nav class="p-4">
+      <nav class="flex-1 overflow-y-auto p-4">
         <ul class="space-y-1">
           <li>
             <NuxtLink 

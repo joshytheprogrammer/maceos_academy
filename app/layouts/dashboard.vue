@@ -3,14 +3,14 @@
     <!-- Admin Sidebar -->
     <aside 
       :class="[
-        'fixed left-0 top-0 z-40 h-screen w-64 border-r border-surface-border bg-surface-dark',
+        'fixed left-0 top-0 z-40 h-screen w-64 border-r border-surface-border bg-surface-dark flex flex-col',
         'transition-transform duration-300 ease-in-out',
         'md:translate-x-0',
         mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
       ]"
     >
       <!-- Logo -->
-      <div class="flex h-16 items-center border-b border-surface-border px-6">
+      <div class="flex h-16 shrink-0 items-center border-b border-surface-border px-6">
         <NuxtLink to="/dashboard" class="flex items-center gap-2">
           <h1 class="text-xl font-bold tracking-tight font-display">
             <span class="text-white">MACEOS</span>
@@ -20,7 +20,7 @@
       </div>
 
       <!-- Navigation -->
-      <nav class="p-4">
+      <nav class="flex-1 overflow-y-auto p-4">
         <ul class="space-y-1">
           <li>
             <NuxtLink 
@@ -113,7 +113,7 @@
       </nav>
 
       <!-- User Card at Bottom -->
-      <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-surface-border">
+      <div class="shrink-0 p-4 border-t border-surface-border">
         <div class="flex items-center gap-3 p-3 rounded-xl bg-background-dark">
           <div class="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center">
             <span class="text-sm font-bold text-primary">{{ userInitials }}</span>
