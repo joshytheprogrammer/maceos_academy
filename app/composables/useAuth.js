@@ -261,6 +261,46 @@ export const useAuth = () => {
    */
   const isEmailVerified = computed(() => user.value?.emailVerification === true)
 
+  /**
+   * Send password recovery email
+   * Appwrite will email the user a link to the provided URL with userId + secret params
+   */
+  const forgotPassword = async (email) => {
+    loading.value = true
+    error.value = null
+    try {
+      const resetUrl = `${window.location.origin}/reset-password`
+      await account.createRecovery({ email, url: resetUrl })
+      return { success: true }
+    }
+    catch (e) {
+      error.value = e.message
+      return { success: false, error: e.message }
+    }
+    finally {
+      loading.value = false
+    }
+  }
+
+  /**
+   * Complete password recovery (called from /reset-password with userId + secret from email link)
+   */
+  const completeRecovery = async (userId, secret, newPassword) => {
+    loading.value = true
+    error.value = null
+    try {
+      await account.updateRecovery({ userId, secret, password: newPassword })
+      return { success: true }
+    }
+    catch (e) {
+      error.value = e.message
+      return { success: false, error: e.message }
+    }
+    finally {
+      loading.value = false
+    }
+  }
+
   return {
     user,
     loading,
@@ -282,5 +322,7 @@ export const useAuth = () => {
     sendVerificationEmail,
     completeVerification,
     isEmailVerified,
+    forgotPassword,
+    completeRecovery,
   }
 }

@@ -33,9 +33,9 @@
               <label for="password" class="block text-sm font-medium text-gray-300">
                 Password
               </label>
-              <a href="#" class="text-sm text-primary hover:text-primary-dark transition-colors">
+              <NuxtLink to="/forgot-password" class="text-sm text-primary hover:text-primary-dark transition-colors">
                 Forgot password?
-              </a>
+              </NuxtLink>
             </div>
             <div class="relative">
               <input
