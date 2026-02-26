@@ -9,6 +9,7 @@ defineProps({
   backgroundIcon: { type: String, required: true },
   ctaText: { type: String, required: true },
   ctaVariant: { type: String, required: true },
+  ctaLink: { type: String, default: null },
 })
 </script>
 
@@ -68,7 +69,18 @@ defineProps({
       </div>
       
       <!-- CTA -->
+      <NuxtLink
+        v-if="ctaLink"
+        :to="ctaLink"
+        class="w-full py-4 rounded-xl font-bold transition-all duration-300 uppercase tracking-widest text-sm text-center block"
+        :class="ctaVariant === 'primary' 
+          ? 'border border-primary text-primary hover:bg-primary hover:text-background-dark' 
+          : 'border border-white/20 text-white hover:bg-white hover:text-background-dark'"
+      >
+        {{ ctaText }}
+      </NuxtLink>
       <button 
+        v-else
         class="w-full py-4 rounded-xl font-bold transition-all duration-300 uppercase tracking-widest text-sm"
         :class="ctaVariant === 'primary' 
           ? 'border border-primary text-primary hover:bg-primary hover:text-background-dark' 

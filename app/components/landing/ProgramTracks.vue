@@ -13,6 +13,7 @@ const staticTrack = {
   ],
   ctaText: 'View Requirements',
   ctaVariant: 'primary',
+  ctaLink: '/apply',
 }
 
 const dynamicTrack = {
@@ -29,6 +30,7 @@ const dynamicTrack = {
   ],
   ctaText: 'Explore Options',
   ctaVariant: 'outline',
+  ctaLink: '/apply',
 }
 </script>
 

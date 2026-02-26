@@ -34,12 +34,12 @@ const isMobileMenuOpen = ref(false)
 
       <!-- CTA & Mobile Menu -->
       <div class="flex items-center gap-4">
-        <a 
-          href="#admissions"
+        <NuxtLink 
+          to="/apply"
           class="hidden sm:flex h-9 items-center justify-center rounded-lg bg-primary px-4 text-sm font-bold text-background-dark hover:bg-primary-dark transition-colors"
         >
           Apply Now
-        </a>
+        </NuxtLink>
         <button 
           class="md:hidden p-2 text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
           @click="isMobileMenuOpen = !isMobileMenuOpen"
@@ -64,13 +64,13 @@ const isMobileMenuOpen = ref(false)
         >
           {{ link.label }}
         </a>
-        <a 
-          href="#admissions"
+        <NuxtLink 
+          to="/apply"
           class="mt-2 flex h-10 items-center justify-center rounded-lg bg-primary text-sm font-bold text-background-dark hover:bg-primary-dark transition-colors"
           @click="isMobileMenuOpen = false"
         >
           Apply Now
-        </a>
+        </NuxtLink>
       </nav>
     </div>
   </header>
