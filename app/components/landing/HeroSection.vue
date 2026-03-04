@@ -39,14 +39,25 @@ watch(() => user.value, () => {
       <div class="absolute inset-0 bg-linear-to-b from-background-dark/80 via-background-dark/50 to-background-dark z-10"></div>
       <img 
         :src="heroImage" 
-        alt="Abstract dark automotive curves and modern aerodynamic design" 
+        alt="Students celebrating graduation in academic regalia" 
         class="h-full w-full object-cover object-center opacity-60"
       />
     </div>
 
     <div class="relative z-10 container mx-auto px-4 md:px-8 lg:px-12 py-20 text-center">
       <div class="mx-auto max-w-4xl flex flex-col items-center gap-8">
-        
+
+        <!-- Student Identity Badge -->
+        <div class="flex flex-col items-center gap-3">
+          <div class="flex h-20 w-20 items-center justify-center rounded-full border-2 border-primary/40 bg-primary/10 shadow-[0_0_40px_rgba(18,226,105,0.15)] backdrop-blur-sm">
+            <span class="material-symbols-outlined text-primary" style="font-size: 2.5rem;">school</span>
+          </div>
+          <div class="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1 backdrop-blur-sm">
+            <span class="material-symbols-outlined text-primary text-base">workspace_premium</span>
+            <span class="text-xs font-bold uppercase tracking-widest text-primary">Student Academy</span>
+          </div>
+        </div>
+
         <!-- LOGGED IN USER WITH APPLICATION -->
         <template v-if="isLoggedIn && hasApplication">
           <!-- Welcome Back Badge -->

@@ -34,6 +34,15 @@ const isMobileMenuOpen = ref(false)
 
       <!-- CTA & Mobile Menu -->
       <div class="flex items-center gap-4">
+        <a
+          href="https://autohub.africa"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="hidden sm:flex h-9 items-center justify-center gap-1.5 rounded-lg border border-primary/30 bg-primary/10 px-4 text-sm font-bold text-primary hover:bg-primary/20 transition-colors"
+        >
+          <span class="material-symbols-outlined text-sm" style="font-size: 1rem;">storefront</span>
+          AutoHub
+        </a>
         <NuxtLink 
           to="/apply"
           class="hidden sm:flex h-9 items-center justify-center rounded-lg bg-primary px-4 text-sm font-bold text-background-dark hover:bg-primary-dark transition-colors"
@@ -63,6 +72,16 @@ const isMobileMenuOpen = ref(false)
           @click="isMobileMenuOpen = false"
         >
           {{ link.label }}
+        </a>
+        <a
+          href="https://autohub.africa"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="mt-2 flex h-10 items-center justify-center gap-2 rounded-lg border border-primary/30 bg-primary/10 text-sm font-bold text-primary hover:bg-primary/20 transition-colors"
+          @click="isMobileMenuOpen = false"
+        >
+          <span class="material-symbols-outlined text-sm" style="font-size: 1rem;">storefront</span>
+          AutoHub Marketplace
         </a>
         <NuxtLink 
           to="/apply"

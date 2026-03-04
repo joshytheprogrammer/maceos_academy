@@ -90,6 +90,18 @@
         <!-- Secondary Nav -->
         <ul class="space-y-1">
           <li>
+            <a
+              href="https://autohub.africa"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-primary/80 transition-all hover:bg-primary/10 hover:text-primary border border-transparent hover:border-primary/20"
+            >
+              <span class="material-symbols-outlined text-xl">storefront</span>
+              AutoHub Marketplace
+              <span class="material-symbols-outlined text-sm ml-auto opacity-60">open_in_new</span>
+            </a>
+          </li>
+          <li>
             <NuxtLink 
               to="/dashboard/profile" 
               class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-gray-400 transition-all hover:bg-surface-darker hover:text-white"
