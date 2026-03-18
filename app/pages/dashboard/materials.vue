@@ -192,7 +192,7 @@
             </div>
             <iframe 
               :src="getFileViewUrl(previewItem.fileId)" 
-              class="h-[calc(100%-65px)] w-full bg-white"
+              class="h-[calc(100%-65px)] w-full bg-surface-darker"
             ></iframe>
           </div>
         </div>

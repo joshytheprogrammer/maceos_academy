@@ -54,7 +54,7 @@ watch(() => user.value, () => {
           </div>
           <div class="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-1 backdrop-blur-sm">
             <span class="material-symbols-outlined text-primary text-base">workspace_premium</span>
-            <span class="text-xs font-bold uppercase tracking-widest text-primary">Student Academy</span>
+            <span class="text-xs font-bold uppercase tracking-widest text-primary">MACEOS Academy</span>
           </div>
         </div>
 
@@ -189,9 +189,6 @@ watch(() => user.value, () => {
               <span>Apply for Admission</span>
               <span class="material-symbols-outlined text-lg">arrow_forward</span>
             </NuxtLink>
-            <button class="flex items-center justify-center h-12 px-8 bg-transparent border border-white/20 hover:border-primary/50 hover:bg-white/5 text-white text-base font-bold rounded-lg transition-all backdrop-blur-sm">
-              <span>Download Prospectus</span>
-            </button>
           </div>
         </template>
 
